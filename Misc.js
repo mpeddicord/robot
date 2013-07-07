@@ -83,6 +83,8 @@ function updateMarkers() {
           var color = 0x00ff00;
           if(isBot){
             color = 0xff0000;
+            //printVector(collisionGrid[x][y][z][0].body.position, "Bot location");
+            //console.log(x+","+y+","+z);
           }
           new marker(x*50, (y*50) + 50, z*50, color);
         }

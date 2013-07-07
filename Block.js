@@ -42,14 +42,14 @@ function Block(x, y, z, blockGeo, blockMaterial) {
     }
   });
   
-    time.setCommandUncompleteCallback(function(command){
+  time.setCommandUncompleteCallback(function(command){
     switch(command.cmd){
-      case "forward":
+      case "push":
         if(command.active)
         {
           var newPos = new THREE.Vector3();
-          var direction = data.data;
-          direction.multiplyScalar(-stepSize);
+          var direction = command.data;
+          direction.multiplyScalar(stepSize);
           newPos.copy(cube.position);
           newPos.add(direction);
           

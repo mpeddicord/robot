@@ -68,7 +68,7 @@ function Robot(){
         {
           var newPos = new THREE.Vector3();
           newPos.copy(body.position);
-          var v1 = new THREE.Vector3( -1, 0, 0 );
+          var v1 = new THREE.Vector3( 1, 0, 0 );
           v1.applyEuler( body.rotation, body.eulerOrder );
           newPos.add( v1.multiplyScalar( stepSize ) );
           moveObjInGrid(self, 
