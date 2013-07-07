@@ -11,8 +11,6 @@ function World(scene) {
   
   var robot;
   
-  var block;
-  
   function init()
   {
     blockGeo = new THREE.CubeGeometry( stepSize, stepSize, stepSize ); 
@@ -22,8 +20,12 @@ function World(scene) {
     ];
     //generateBlocks();  
     
-    block = addBlockToWorld(1,0,-1);
-    //block = addBlockToWorld(1,0,-2);
+    addBlockToWorld(1,0,-1);
+    addBlockToWorld(1,0,-2);
+    
+    addBlockToWorld(2,0,-1);
+    addBlockToWorld(2,0,-2);
+    addBlockToWorld(2,0,-3);
     
     robot = new Robot();
     addObjToGrid(robot);
@@ -131,10 +133,10 @@ function World(scene) {
     $("#console").html("");
     var timeControl = delta * timeMult;
     robot.update(timeControl);
-    block.update(timeControl);
-     
-    block.printState();
     
+    for (var i in blockList)
+      blockList[i].update(timeControl);
+     
     //Don't run collision when we are moving through history
     //if(block.body.position.distanceTo(robot.body.position) < stepSize)
     //{
