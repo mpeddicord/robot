@@ -1,48 +1,32 @@
-function Block(x, y, z, blockGeo, blockMaterial) {
-
-  var falling = true;
+function Block(data) {
+  DynamicObjectBase.call(this,data);
+  data = this.data;
+  var self = this;
   
-  var pushing = false;
+  this.body = THREE.SceneUtils.createMultiMaterialObject( data.blockGeo, this.personalColor ); 
+  this.setPosition(data.pos);
   
-  personalColor = [
-      new THREE.MeshLambertMaterial( { color: 0xBBBBBB + (0x444444) * Math.random(), shading: THREE.FlatShading, overdraw: false} ),
-      new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 1, transparent: true, opacity:1} )
-    ];
+  this.time = new Time(actions, this.body, false);
   
-  var cube = THREE.SceneUtils.createMultiMaterialObject( blockGeo, personalColor );
-  
-  cube.position.x = x;
-  cube.position.y = y;
-  cube.position.z = z;
-  
-  var time = new Time(actions, cube, false);
-  
-  function printState(){
-    $("#console").html(time.printState());
-  }
-  
-  function push(vector){
-    //if(pushing && !time.isInHistory())
-    //  return;
-    vector.set(closestMult(1, vector.x), closestMult(1, vector.y), closestMult(1, vector.z));
-    printVector(vector);
-    time.addCommand("push", vector);
-    //pushing = true;
-  }
-  
-  function update(delta){
-    time.update(delta);
+  function actions(command, delta, direction){
+    switch(command){
+      case "push":
+        direction.normalize();
+        self.body.translateOnAxis(direction, stepSize * delta * (1 / stepLength));
+      break;
+    }
   }
  
-  time.setCommandCompleteCallback(function(data)
-  {
-    if(data.cmd == "push")
-    {
-      pushing = false;
+  this.time.setCommandCompleteCallback(
+    function(data) {
+      if(data.cmd == "push")
+      {
+        self.pushing = false;
+      }
     }
-  });
+  );
   
-  time.setCommandUncompleteCallback(function(command){
+  this.time.setCommandUncompleteCallback(function(command){
     switch(command.cmd){
       case "push":
         if(command.active)
@@ -50,56 +34,42 @@ function Block(x, y, z, blockGeo, blockMaterial) {
           var newPos = new THREE.Vector3();
           var direction = command.data;
           direction.multiplyScalar(stepSize);
-          newPos.copy(cube.position);
+          newPos.copy(self.body.position);
           newPos.add(direction);
           
           moveObjInGrid(self, 
                   newPos.x, 
                   newPos.y, 
                   newPos.z, 
-                  cube.position.x, 
-                  cube.position.y,
-                  cube.position.z);
+                  self.body.position.x, 
+                  self.body.position.y,
+                  self.body.position.z);
         }
       break;
     }
   });
   
-  time.setCommandStartCallback(function(data){
-    if(data.cmd == "push"){
-      var newPos = new THREE.Vector3();
-      var direction = data.data;
-      direction.multiplyScalar(stepSize);
-      newPos.copy(cube.position);
-      newPos.add(direction);
-      
-      moveObjInGrid(self, 
-              cube.position.x, 
-              cube.position.y, 
-              cube.position.z, 
-              newPos.x, 
-              newPos.y,
-              newPos.z);
+  this.time.setCommandStartCallback(
+    function(data){
+      if(data.cmd == "push"){
+        var newPos = new THREE.Vector3();
+        var direction = data.data;
+        direction.multiplyScalar(stepSize);
+        newPos.copy(self.body.position);
+        newPos.add(direction);
+        
+        moveObjInGrid(self, 
+                self.body.position.x, 
+                self.body.position.y, 
+                self.body.position.z, 
+                newPos.x, 
+                newPos.y,
+                newPos.z);
+      }
+      return true;
     }
-    return true;
-  });
-  
-  function actions(command, delta, direction){
-    switch(command){
-      case "push":
-        direction.normalize();
-        cube.translateOnAxis(direction, stepSize * delta * (1 / stepLength));
-      break;
-    }
-  }
-  
-  var self = {
-    body: cube,
-    update: update,
-    push: push,
-    falling: falling,
-    printState: printState
-  };
-  
-  return self;
+  );
 };
+
+Block.prototype = new DynamicObjectBase();
+Block.prototype.constructor = Block;

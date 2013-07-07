@@ -133,7 +133,7 @@ function accumulateMass(obj, direction, objList) {
   var oa = getObjArray(v.x, v.y, v.z);
   
   if (oa.length == 0)
-    return 1;
+    return obj.mass;
 
-  return 1 + accumulateMass(oa[0], direction, objList);
+  return obj.mass + accumulateMass(oa[0], direction, objList);
 }

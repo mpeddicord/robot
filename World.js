@@ -130,7 +130,15 @@ function World(scene) {
   
   function addBlockToWorld(x, y, z)
   {
-    var newBlock = new Block(x * stepSize, y * stepSize, z * stepSize, blockGeo, blockMaterials);
+    var newBlock = new Block({
+      pos : {
+        x: (x * stepSize), 
+        y: (y * stepSize), 
+        z: (z * stepSize)
+      },
+      blockGeo:blockGeo, 
+      blockMaterials:blockMaterials
+    });
     scene.add( newBlock.body );
     blockList.push(newBlock);
     addObjToGrid(newBlock);
@@ -147,7 +155,6 @@ function World(scene) {
        }
     return false;
   }
-  
   
   function update(delta)
   {
