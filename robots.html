@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - camera - orthographic</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="three.min.js"></script>
+    
+    <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>  
+
+		<script src="three/examples/js/libs/stats.min.js"></script>
+    
+    <script src="Misc.js"></script>
+    <script src="Time.js"></script>
+    <script src="Robot.js"></script>
+    <script src="Block.js"></script>
+    <script src="World.js"></script>
+
+		<script>
+
+    $(document).ready(function(){
+			var container, stats;
+			var camera, scene, renderer;
+      
+      var gridWorld;
+
+			init();
+			animate();
+
+			function init() {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+                
+ 				var info = document.createElement( 'div' );
+				info.style.position = 'absolute';
+				info.style.top = '50px';
+				info.style.width = '100%';
+				info.style.textAlign = 'left';
+				info.innerHTML = 'Time Mult: <span id="timeMult">1x</span><br />' + 
+                          '<span id="console"></span>';
+				container.appendChild( info );
+
+				camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, - 500, 1000 );
+				camera.position.x = 200;
+				camera.position.y = 200;
+				camera.position.z = 200;
+        
+        camera.lookAt(new THREE.Vector3(0,0,0));
+
+        scene = new THREE.Scene();
+        
+				// Grid        
+
+				var size = 250, step = 50;
+
+				var gridgeometry = new THREE.Geometry();
+
+				for ( var i = - size; i <= size; i += step ) {
+
+					gridgeometry.vertices.push( new THREE.Vector3( - size, 0, i ) );
+					gridgeometry.vertices.push( new THREE.Vector3(   size, 0, i ) );
+
+					gridgeometry.vertices.push( new THREE.Vector3( i, 0, - size ) );
+					gridgeometry.vertices.push( new THREE.Vector3( i, 0,   size ) );
+
+				}
+
+				var gridmaterial = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
+
+				var line = new THREE.Line( gridgeometry, gridmaterial );
+				line.type = THREE.LinePieces;
+				scene.add( line );
+
+				// Cubes
+
+        gridWorld = new World(scene);
+        
+				// Lights
+
+				var ambientLight = new THREE.AmbientLight( 0.75 * 0x10 );
+				scene.add( ambientLight );
+        
+
+				var directionalLight = new THREE.DirectionalLight( 0xffffff );
+				directionalLight.position.x = 0.25;
+				directionalLight.position.y = 0.5;
+				directionalLight.position.z = 0.25;
+        
+				directionalLight.position.normalize();
+				scene.add( directionalLight );
+        
+
+				var directionalLight = new THREE.DirectionalLight( 0xffffff );
+				
+        directionalLight.position.x = -1;
+				directionalLight.position.y = -0.5;
+				directionalLight.position.z = -0.25;
+        
+				directionalLight.position.normalize();
+				scene.add( directionalLight );
+        
+        
+
+				renderer = new THREE.CanvasRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container.appendChild( renderer.domElement );
+
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+        
+
+			}
+
+			function onWindowResize() {
+
+				camera.left = window.innerWidth / - 2;
+				camera.right = window.innerWidth / 2;
+				camera.top = window.innerHeight / 2;
+				camera.bottom = window.innerHeight / - 2;
+
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+      var lastTime = Date.now();
+			function animate() {
+        var thisTime = Date.now();
+        var delta = (thisTime - lastTime) / 1000.0;
+        lastTime = thisTime;
+        
+				requestAnimationFrame( animate );
+        
+				render();
+				stats.update();
+        gridWorld.update(delta);
+
+			}
+
+			function render() {
+
+				var timer = Date.now() * 0.0001 + gridWorld.rotMod;
+
+        var middleOfGrid = (gridWorld.worldSize * gridWorld.worldStep) / 2;
+        
+				//camera.position.x = Math.cos( timer ) * 200 + middleOfGrid;
+				//camera.position.z = Math.sin( timer ) * 200 + middleOfGrid;
+				//camera.lookAt( new THREE.Vector3(middleOfGrid, 100, middleOfGrid) );
+
+				renderer.render( scene, camera );
+         
+			}
+    });
+      //setTimeout(function(){location.reload(); }, 2000);
+
+		</script>
+
+	</body>
+</html>
