@@ -18,6 +18,7 @@
     <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>  
     <script src="stats.min.js"></script>
 
+    <script src="DynamicObjectBase.js"></script>
     <script src="Misc.js"></script>
     <script src="Time.js"></script>
     <script src="Robot.js"></script>
@@ -53,7 +54,7 @@
           camera.lookAt(new THREE.Vector3(0,0,0));
           
           // Grid        
-          var size = 250, step = 50;
+          var size = 550, step = 50;
           var gridgeometry = new THREE.Geometry();
           var gridOffset = -25;
           for ( var i = - size; i <= size; i += step ) {
