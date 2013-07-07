@@ -9,7 +9,8 @@ function World(scene) {
   
   var timeMult;
   
-  var robot;
+  var numRobots = 3;
+  var robots;
   
   function init()
   {
@@ -27,10 +28,13 @@ function World(scene) {
     addBlockToWorld(2,0,-2);
     addBlockToWorld(2,0,-3);
     
-    robot = new Robot();
-    addObjToGrid(robot);
-    scene.add( robot.body );
-    
+    robots = new Array();
+    for(var i = 0; i < numRobots; i++){
+      robots[i] = new Robot(-3, 0, i * 2);
+      addObjToGrid(robots[i]);
+      scene.add( robots[i].body );
+    }
+
     for(var i = 0; i < 100; i++)
     {
       //robot.moveForward()

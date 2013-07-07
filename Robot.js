@@ -1,4 +1,4 @@
-function Robot(){  
+function Robot(_x, _y, _z){  
   function moveForward(){
     console.log("Forward");
     time.addCommand("forward");
@@ -55,6 +55,9 @@ function Robot(){
     ];
   
   var body = THREE.SceneUtils.createMultiMaterialObject( new THREE.OctahedronGeometry(25), personalColor );
+  body.position.x = _x;
+  body.position.y = _y;
+  body.position.z = _z;
   
   var time = new Time(actions, body, true);
   
