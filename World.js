@@ -57,7 +57,7 @@ function World(scene) {
     document.body.onkeydown = function(event){
       event = event || window.event;
       var keycode = event.charCode || event.keyCode;
-      //console.log(keycode);
+      console.log(keycode);
       if(keycode == 187)
       {
         timeMult += 1;
@@ -86,6 +86,10 @@ function World(scene) {
       if(keycode == 32)
       {
         findObjs();
+      }
+      if(keycode == 90)
+      {
+        clearMarkers();
       }
     }
   }

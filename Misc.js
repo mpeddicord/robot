@@ -4,6 +4,33 @@ var gridSize = 20;
 var EPSILON = 0.00000001;
 var offset = (stepSize * gridSize) / 2;
 
+var markers = [];
+
+var scene = new THREE.Scene();
+
+function marker(__x, __y, __z, color){
+  blockGeo = new THREE.CubeGeometry( stepSize/4, stepSize/4, stepSize/4 );
+  personalColor = [
+      new THREE.MeshLambertMaterial( { color: color, shading: THREE.FlatShading, overdraw: false} ),
+      new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 1, transparent: true, opacity:1} )
+    ];
+  
+  var cube = THREE.SceneUtils.createMultiMaterialObject( blockGeo, personalColor );
+  cube.position.x = __x;
+  cube.position.y = __y;
+  cube.position.z = __z;
+  scene.add(cube);
+  markers.push(cube);
+};
+
+function clearMarkers(){
+  for(var i in markers){
+    scene.remove(markers[i]);
+  }
+  markers = [];
+}
+
+
 function closestMult(snap, value)
 {
   var fraction  = value / snap;
@@ -38,16 +65,17 @@ for (var x = 0; x < gridSize; x++) {
 }
 
 function findObjs() {
+  clearMarkers();
   for (var x = 0; x < gridSize; x++) {
     for (var y = 0; y < gridSize; y++) {
       for (var z = 0; z < gridSize; z++) {
-        if (collisionGrid[x][y][z].length){
+        if (collisionGrid[x][y][z].length > 0){
           var isBot = collisionGrid[x][y][z][0].turnLeft != undefined;
+          var color = 0x00ff00;
           if(isBot){
-            console.log(x+","+y+","+z+":"+collisionGrid[x][y][z].length);
-            //console.log(?" is bot" : " is block");
-            printVector(collisionGrid[x][y][z][0].body.position);
+            color = 0xff0000;
           }
+          new marker(x*50, (y*50) + 50, z*50, color);
         }
       }
     }
@@ -78,6 +106,8 @@ function moveObjInGrid(obj, x1, y1, z1, x2, y2, z2){
   
   newArray.push(oldArray[index]);
   oldArray.splice(index, 1);
+  
+  findObjs();
 }
 
 function addObjToGrid(obj){

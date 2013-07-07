@@ -12,11 +12,16 @@ function Time(_actionFunction, _body, _preserveFuture){
     console.log("ERROR: Made a time object without an actionFunction");
   }
   var onCommandComplete = function(){};
+  var onCommandUncomplete = function(){};
   var onCommandStart = function(){};
   var body = _body;
   
   function setCommandCompleteCallback(callback){
     onCommandComplete = callback;
+  }
+  
+  function setCommandUncompleteCallback(callback){
+    onCommandUncomplete = callback;
   }
   
   function setCommandStartCallback(callback){
@@ -94,6 +99,8 @@ function Time(_actionFunction, _body, _preserveFuture){
         }
         else
         {
+          if(currCommand[0] != undefined)
+            onCommandUncomplete(currCommand[0]);
           if(finishedCommand.length == 0)
           {
             //We have rewound all the way to the very beginning
@@ -153,6 +160,7 @@ function Time(_actionFunction, _body, _preserveFuture){
     addCommand: addCommand,
     onCommandComplete: onCommandComplete,
     setCommandCompleteCallback: setCommandCompleteCallback,
+    setCommandUncompleteCallback: setCommandUncompleteCallback,
     setCommandStartCallback: setCommandStartCallback,
     printState: printState,
     isInHistory: isInHistory

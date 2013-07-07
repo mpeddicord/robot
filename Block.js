@@ -42,6 +42,29 @@ function Block(x, y, z, blockGeo, blockMaterial) {
     }
   });
   
+    time.setCommandUncompleteCallback(function(command){
+    switch(command.cmd){
+      case "forward":
+        if(command.active)
+        {
+          var newPos = new THREE.Vector3();
+          var direction = data.data;
+          direction.multiplyScalar(-stepSize);
+          newPos.copy(cube.position);
+          newPos.add(direction);
+          
+          moveObjInGrid(self, 
+                  newPos.x, 
+                  newPos.y, 
+                  newPos.z, 
+                  cube.position.x, 
+                  cube.position.y,
+                  cube.position.z);
+        }
+      break;
+    }
+  });
+  
   time.setCommandStartCallback(function(data){
     if(data.cmd == "push"){
       var newPos = new THREE.Vector3();
