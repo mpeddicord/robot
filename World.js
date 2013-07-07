@@ -20,7 +20,7 @@ function World(scene) {
       new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: false} ),
       new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 4, transparent: true, opacity:1} )
     ];
-    generateBlocks();  
+    //generateBlocks();  
     
     block = addBlockToWorld(1,0,-1);
     //block = addBlockToWorld(1,0,-2);
@@ -79,7 +79,7 @@ function World(scene) {
       if(keycode == 40) //Down
       {
         //robot.moveBack();
-        block.push(new THREE.Vector3(1,0,0));
+        //block.push(new THREE.Vector3(1,0,0));
       }
       if(keycode == 32)
       {
@@ -97,7 +97,7 @@ function World(scene) {
         for (var z = 0; z < size; z++) {              
           if(Math.random() > 0.75)
           {
-            //addBlockToWorld(x,y,z);
+            addBlockToWorld(x,y,z);
           }
         }
       }
