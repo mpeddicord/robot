@@ -1,5 +1,6 @@
 function Time(_actionFunction, _body, _preserveFuture){
   var currCommand = [];
+  var lastStartedCommand = undefined;
   var finishedCommand = [];
   var timeRemaining = stepLength;
   var preserveFuture = (_preserveFuture != undefined) ? _preserveFuture : true;
@@ -50,6 +51,9 @@ function Time(_actionFunction, _body, _preserveFuture){
     while(delta != 0 && !isNaN(delta))
     {
       var forward = delta > 0;
+      if(!forward) {
+        lastStartedCommand = undefined;
+      }
   
       inHistory = false;
       //Special code for waiting when we reach the end of the command list
@@ -128,8 +132,9 @@ function Time(_actionFunction, _body, _preserveFuture){
   function applyTimeToAction(delta, forward){
     if(actionFunction != undefined && currCommand[0] != undefined)
     { 
-      if(forward && Math.abs(timeRemaining - currCommand[0].length) < EPSILON)
+      if(forward && lastStartedCommand != currCommand[0])
       { 
+        lastStartedCommand = currCommand[0];
         var activated = onCommandStart(currCommand[0]);
         currCommand[0].active = activated;
       }
