@@ -11,6 +11,8 @@ function World(scene) {
   
   var numRobots = 3;
   var robots;
+  var selectedRobotNum = 0;
+  var selectedRobot;
   
   function init()
   {
@@ -30,10 +32,12 @@ function World(scene) {
     
     robots = new Array();
     for(var i = 0; i < numRobots; i++){
-      robots[i] = new Robot(-3, 0, i * 2);
+      robots[i] = new Robot(-3 * stepSize, 0, stepSize * i * 2);
       addObjToGrid(robots[i]);
       scene.add( robots[i].body );
     }
+    
+    selectedRobot = robots[0];
 
     for(var i = 0; i < 100; i++)
     {
@@ -72,26 +76,36 @@ function World(scene) {
       }
       if(keycode == 39) //Right
       {
-        robot.turnRight();
+        selectedRobot.turnRight();
       }
       if(keycode == 37) //Left
       {
-        robot.turnLeft();
+        selectedRobot.turnLeft();
       }
       if(keycode == 38) //Up
       {
-        robot.moveForward();
+        selectedRobot.moveForward();
       }
       if(keycode == 40) //Down
       {
-        //robot.moveBack();
+        //selectedRobot.moveBack();
         //block.push(new THREE.Vector3(1,0,0));
       }
-      if(keycode == 32)
+      if(keycode == 219) //[
+      {
+        selectedRobotNum = (selectedRobotNum+1) % robots.length;
+        selectedRobot = robots[selectedRobotNum];
+      }
+      if(keycode == 221) //]
+      {
+        selectedRobotNum = (selectedRobotNum-1) % robots.length;
+        selectedRobot = robots[selectedRobotNum];
+      }
+      if(keycode == 32)// Space
       {
         findObjs();
       }
-      if(keycode == 90)
+      if(keycode == 90)// z
       {
         clearMarkers();
       }
@@ -140,12 +154,36 @@ function World(scene) {
     $("#timeMult").html(timeMult + "x");
     $("#console").html("");
     var timeControl = delta * timeMult;
-    robot.update(timeControl);
+    
+    for (var i in robots)
+      robots[i].update(timeControl);
     
     for (var i in blockList)
       blockList[i].update(timeControl);
      
     updateMarkers();
+  }
+  
+  function handleClicks(event, camera, projector){
+    event.preventDefault();
+    var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
+    projector.unprojectVector( vector, camera );
+
+    var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+    for(var i in robots){
+      var intersects = raycaster.intersectObject( robots[i].body, false );
+
+      if ( intersects.length > 0 ) {
+        console.log("Found anything?");
+        //intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+        //
+        //var particle = new THREE.Particle( particleMaterial );
+        //particle.position = intersects[ 0 ].point;
+        //particle.scale.x = particle.scale.y = 8;
+        //scene.add( particle );
+      }
+    }
   }
   
   init();
@@ -155,6 +193,7 @@ function World(scene) {
     update : update,
     worldSize : size,
     worldStep : step,
-    rotMod : rotMod
+    rotMod : rotMod,
+    handleClicks: handleClicks
   }
 };
