@@ -141,70 +141,7 @@ function World(scene) {
     for (var i in blockList)
       blockList[i].update(timeControl);
      
-    //Don't run collision when we are moving through history
-    //if(block.body.position.distanceTo(robot.body.position) < stepSize)
-    //{
-    //  var direction = new THREE.Vector3();
-    //  direction.copy(block.body.position);
-    //  direction.sub(robot.body.position);
-    //  direction.normalize();
-    //  block.push(direction);
-    //}
-    
-    //blockList.sort(function(block1, block2)
-    //  { 
-    //    var result = block1.data.position.y - block2.data.position.y;
-    //    return  result;
-    //  }
-    //);
-    //
-    //for(var i = 0; i < blockList.length; i++)
-    //{
-    //  var canMove = blockList[i].data.position.y > 0;
-    //  
-    //  xpos = blockList[i].data.position.x;
-    //  ypos = blockList[i].data.position.y;
-    //  zpos = blockList[i].data.position.z;
-    //       
-    //  if(canMove)
-    //  {
-    //    for(var h = 0; h < i; h++)
-    //    {
-    //      var calculatedBlockA = new THREE.Vector3(xpos, ypos - 4, zpos);
-    //      if(blocksIntersect(calculatedBlockA, blockList[h].data.position))
-    //      {
-    //        canMove = false;
-    //        break;
-    //      }
-    //    }
-    //  }
-    //  
-    //  if(canMove)
-    //  {
-    //    ypos -= 4;
-    //    blockList[i].falling = true;
-    //  }
-    //  else
-    //  {
-    //    if(blockList[i].falling)
-    //    {
-    //      blockList[i].falling = false;
-    //      xpos = closestMult(stepSize, xpos);
-    //      ypos = closestMult(stepSize, ypos);
-    //      zpos = closestMult(stepSize, zpos);
-    //    }
-    //  }
-    //  
-    //  if(blockList[i].data.position.x != xpos){
-    //      blockList[i].data.position.x = xpos;
-    //  }
-    //  if(blockList[i].data.position.y != ypos){
-    //      blockList[i].data.position.y = ypos;
-    //  }
-    //  if(blockList[i].data.position.z != zpos){
-    //      blockList[i].data.position.z = zpos;
-    //  }
-    //}
+    updateMarkers();
   }
   
   init();
