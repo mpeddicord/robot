@@ -32,10 +32,20 @@ function World(scene) {
     
     robots = new Array();
     for(var i = 0; i < numRobots; i++){
-      robots[i] = new Robot(-3 * stepSize, 0, stepSize * i * 2);
+      robots[i] = new Robot({
+        pos : {
+          x: -3*stepSize, 
+          y: 0, 
+          z: stepSize*i*2
+        },
+        blockGeo:blockGeo, 
+        blockMaterials:blockMaterials
+      });
       addObjToGrid(robots[i]);
       scene.add( robots[i].body );
     }
+    
+    createWallRect(-11, -11, 21, 21);
     
     selectedRobot = robots[0];
 
@@ -112,6 +122,28 @@ function World(scene) {
     }
   }
   
+  //This code is out of control. :)
+  function createWallRect(x, z, width, length){
+    var mass = 99999;
+    var colors = [0xffffff, 0x000000];
+    for(var i = x; i <= x + width; i++){
+      if(i == x || i == x + width){
+        for(var h = z+1; h < z + length; h++){
+          var col = MATH.lerp(0.1, 0.75, Math.sin((h-z) / length * Math.PI));
+          var color = new THREE.Color();
+          color.r = col; color.g = col; color.b = col + 0.25;
+          addBlockToWorld(i, 0, h, mass, color.getHex());
+        }
+      }
+      var col = MATH.lerp(0.1, 0.75, Math.sin((i-x) / width * Math.PI));
+      var color = new THREE.Color();
+      color.r = col; color.g = col + 0.25; color.b = col;
+      addBlockToWorld(i, 0, z, mass, color.getHex());
+      color.r = col + 0.25; color.g = col; color.b = col;
+      addBlockToWorld(i, 0, z + length, mass, color.getHex()) 
+    }
+  }
+  
   function generateBlocks()
   {
     size = 7;
@@ -128,14 +160,16 @@ function World(scene) {
     }
   }
   
-  function addBlockToWorld(x, y, z)
-  {
+  function addBlockToWorld(x, y, z, mass, color)
+  {    
     var newBlock = new Block({
       pos : {
         x: (x * stepSize), 
         y: (y * stepSize), 
         z: (z * stepSize)
       },
+      color: color,
+      mass: mass,
       blockGeo:blockGeo, 
       blockMaterials:blockMaterials
     });
