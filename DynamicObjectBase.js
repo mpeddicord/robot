@@ -8,9 +8,9 @@ DynamicObjectBase = function(data) {
     data.color = 0xBBBBBB + (0x444444) * Math.random();
     
   this.personalColor = [
-      new THREE.MeshLambertMaterial( { color: data.color, shading: THREE.FlatShading, overdraw: false} ),
-      new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 1, transparent: true, opacity:1} )
-    ];
+    new THREE.MeshLambertMaterial( { color: data.color, shading: THREE.FlatShading, overdraw: false} ),
+    new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 1, transparent: true, opacity:1} )
+  ];
    
   this.falling = true;
   this.pushing = false;

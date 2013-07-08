@@ -5,6 +5,7 @@ var EPSILON = 0.00000001;
 var offset = (stepSize * gridSize) / 2;
 
 var markersDirty = true;
+var showMarkers = false;
 var markers = [];
 
 var scene = new THREE.Scene();
@@ -67,10 +68,11 @@ for (var x = 0; x < gridSize; x++) {
 }
 
 function updateMarkers() {
-  if (!markersDirty)
+  clearMarkers();
+  
+  if (!showMarkers || !markersDirty)
     return;
     
-  clearMarkers();
   for (var x = 0; x < gridSize; x++) {
     for (var y = 0; y < gridSize; y++) {
       for (var z = 0; z < gridSize; z++) {
@@ -82,7 +84,7 @@ function updateMarkers() {
             //printVector(collisionGrid[x][y][z][0].body.position, "Bot location");
             //console.log(x+","+y+","+z);
           }
-          //new marker(x*50, (y*50) + 50, z*50, color);
+          new marker(x*50, (y*50) + 50, z*50, color);
         }
       }
     }

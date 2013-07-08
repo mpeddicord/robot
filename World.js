@@ -113,7 +113,7 @@ function World(scene) {
       }
       if(keycode == 32)// Space
       {
-        findObjs();
+        showMarkers = !showMarkers;
       }
       if(keycode == 90)// z
       {
