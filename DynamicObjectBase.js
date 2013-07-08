@@ -4,8 +4,11 @@ DynamicObjectBase = function(data) {
   if (data == undefined)
     data = { pos:{x:0,y:0,z:0} };
     
+  if (data.color == undefined)
+    data.color = 0xBBBBBB + (0x444444) * Math.random();
+    
   this.personalColor = [
-      new THREE.MeshLambertMaterial( { color: 0xBBBBBB + (0x444444) * Math.random(), shading: THREE.FlatShading, overdraw: false} ),
+      new THREE.MeshLambertMaterial( { color: data.color, shading: THREE.FlatShading, overdraw: false} ),
       new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 1, transparent: true, opacity:1} )
     ];
    

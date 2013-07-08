@@ -18,6 +18,8 @@
     <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>  
     <script src="stats.min.js"></script>
 
+    <script src="Math.js"></script>
+    
     <script src="DynamicObjectBase.js"></script>
     <script src="Misc.js"></script>
     <script src="Time.js"></script>
@@ -28,11 +30,15 @@
     <script>
       $(document).ready(function(){
         var container, stats;
-        var camera, renderer;
+        var camera, projector, renderer;
         var gridWorld;
 
         init();
         animate();
+        
+        function onDocumentMouseDown( event ) {
+          gridWorld.handleClicks( event, camera, projector );
+        }
 
         function init() {
           container = document.createElement( 'div' );
@@ -46,12 +52,25 @@
           info.innerHTML = 'Time Mult: <span id="timeMult">1x</span><br />' + 
                           '<span id="console"></span>';
           container.appendChild( info );
+          
+          var sliderContainer = document.createElement( 'div' );
+          sliderContainer.style.position = 'absolute';
+          sliderContainer.style.bottom = '20px';
+          sliderContainer.style.width = '100%';
+          sliderContainer.innerHTML = '<input id="defaultSlider" type="range" width="100%" min="0" max="500" />';
+          
+          container.appendChild( sliderContainer );
+          
 
           camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 5000 );
           camera.position.x = 1000;
           camera.position.y = 1000;
           camera.position.z = 1000;
           camera.lookAt(new THREE.Vector3(0,0,0));
+          
+          projector = new THREE.Projector(); 
+          
+          document.addEventListener( 'mousedown', onDocumentMouseDown, false );
           
           // Grid        
           var size = 550, step = 50;

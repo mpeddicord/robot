@@ -1,6 +1,6 @@
 var stepLength = 0.5;
 var stepSize = 50;
-var gridSize = 20;
+var gridSize = 22;
 var EPSILON = 0.00000001;
 var offset = (stepSize * gridSize) / 2;
 
@@ -75,10 +75,6 @@ function updateMarkers() {
     for (var y = 0; y < gridSize; y++) {
       for (var z = 0; z < gridSize; z++) {
         if (collisionGrid[x][y][z].length > 0){
-          //console.log(x+","+y+","+z+":"+collisionGrid[x][y][z].length);
-          //console.log(?" is bot" : " is block");
-          //printVector(collisionGrid[x][y][z][0].body.position);
-
           var isBot = collisionGrid[x][y][z][0].turnLeft != undefined;
           var color = 0x00ff00;
           if(isBot){
@@ -86,7 +82,7 @@ function updateMarkers() {
             //printVector(collisionGrid[x][y][z][0].body.position, "Bot location");
             //console.log(x+","+y+","+z);
           }
-          new marker(x*50, (y*50) + 50, z*50, color);
+          //new marker(x*50, (y*50) + 50, z*50, color);
         }
       }
     }
