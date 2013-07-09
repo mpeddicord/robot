@@ -4,6 +4,7 @@
     <title>three.js canvas - camera - orthographic</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
     <style>
       body {
         font-family: Monospace;
@@ -16,6 +17,7 @@
   <body>
     <script src="three.min.js"></script>
     <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>  
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script src="stats.min.js"></script>
 
     <script src="Math.js"></script>
@@ -32,14 +34,27 @@
         var container, stats;
         var camera, projector, renderer;
         var gridWorld;
-        var screenSafeArea = 0.85;
+        var screenSafeArea = 0.99;
         var zoom = 1.3;
+        
+        var containerLeft, containerTop;
+        var containerWidth, containerHeight;
+        
+        window.onZoom = function(slider) {
+          zoom = slider.value / 10.0;
+          onWindowResize();
+        }
 
         init();
         animate();
         
         function onDocumentMouseDown( event ) {
-          gridWorld.handleClicks( event, camera, projector );
+          var cx = (event.clientX-containerLeft) / containerWidth; 
+          var cy = (event.clientY-containerTop) / containerHeight; 
+          
+          //These calls are intentionally disabled for now.
+          //gridWorld.handleClicks( event, camera, projector ); // This is the interface in master.
+          //gridWorld.handleClicks( cx, cy, camera, projector ); //This is the new interface in picking.
         }
 
         function init() {
@@ -55,12 +70,14 @@
                           '<span id="console"></span>';
           container.appendChild( info );
           
+          /* //This is in HTML now
           var sliderContainer = document.createElement( 'div' );
           sliderContainer.style.position = 'absolute';
           sliderContainer.style.bottom = '20px';
           sliderContainer.style.width = '1000';
           sliderContainer.innerHTML = '<input id="defaultSlider" type="range" min="0" max="500" />';
           //document.body.appendChild( sliderContainer );
+          */
 
           camera = new THREE.OrthographicCamera( 
             window.innerWidth / -zoom, 
@@ -78,7 +95,7 @@
           
           projector = new THREE.Projector(); 
           
-          //document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+          container.addEventListener( 'mousedown', onDocumentMouseDown, false );
           
           // Grid        
           var size = 550, step = 50;
@@ -126,7 +143,9 @@
           renderer = new THREE.WebGLRenderer();
           //renderer = new THREE.CanvasRenderer();
 
-          renderer.setSize( window.innerWidth * screenSafeArea, window.innerHeight * screenSafeArea );
+          calculateContainerSize();
+
+          renderer.setSize( containerWidth, containerHeight );
           renderer.domElement.style.borderStyle = 'solid';
           renderer.domElement.style.borderWidth = '1px';
           renderer.domElement.style.borderColor = '#000000';
@@ -139,34 +158,39 @@
           stats.domElement.style.position = 'absolute';
           stats.domElement.style.top = '0px';
           container.appendChild( stats.domElement );
+          
+          $( "#programs" ).tabs();
+          var z= $( "#zoom" )[0];
+          window.onZoom(z);
 
           window.addEventListener( 'resize', onWindowResize, false );
         }
-        
-        window.onZoom = function(slider) {
-          zoom = slider.value / 10.0;
-          onWindowResize();
-        }
-        
+                
         function positionRenderer() {
           renderer.domElement.style.position = 'absolute';
-          var left = Math.floor(window.innerWidth * (1.0 - screenSafeArea) * 0.5);
-          var top = Math.floor(window.innerHeight * (1.0 - screenSafeArea) * 0.5);
-          renderer.domElement.style.left = left.toString() + 'px';
-          renderer.domElement.style.top = top.toString() + 'px';
+          containerLeft = Math.floor((window.innerWidth - containerWidth) * 0.5);
+          containerTop = containerLeft;
+          renderer.domElement.style.left = containerLeft.toString() + 'px';
+          renderer.domElement.style.top = containerTop.toString() + 'px';
         }
 
         function onWindowResize() {
-          camera.left = window.innerWidth / -zoom;
-          camera.right = window.innerWidth / zoom;
-          camera.top = window.innerHeight / zoom;
-          camera.bottom = window.innerHeight / -zoom;
+          calculateContainerSize();
+          
+          camera.left = containerWidth / -zoom;
+          camera.right = -camera.left;
+          camera.top = containerHeight / zoom;
+          camera.bottom = -camera.top;
           camera.updateProjectionMatrix();
-
-          var width = screenSafeArea * window.innerWidth;
-          var height = screenSafeArea * window.innerHeight;
-          renderer.setSize( width, height );
+          
+          renderer.setSize( containerWidth, containerHeight );
           positionRenderer();
+        }
+        
+        function calculateContainerSize() {
+          var bottomUiTop = $( "#programs" ).position().top;
+          containerWidth = screenSafeArea * window.innerWidth;
+          containerHeight = screenSafeArea * bottomUiTop;
         }
 
         //
@@ -197,5 +221,22 @@
       });
     </script>
       <input id="zoom" type="range" min="12" max="25" style="position:absolute; bottom:20px;" onchange="onZoom(this);" />
+      
+      <div id="programs" style="position:absolute; bottom:5px; right:5px">
+        <ul>
+          <li><a href="#robo-1">Robot 1</a></li>
+          <li><a href="#robo-2">Robot 2</a></li>
+          <li><a href="#robo-3">Robot 3</a></li>
+        </ul>
+        <div id="robo-1">
+          <p>Robot 1 Program</p>
+        </div>
+        <div id="robo-2">
+          <p>Robot 2 Program</p>
+        </div>
+        <div id="robo-3">
+          <p>Robot 3 Program</p>
+        </div>
+      </div>
     </body>
 </html>
