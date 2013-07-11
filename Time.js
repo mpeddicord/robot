@@ -1,4 +1,4 @@
-function Time(_actionFunction, _body, _preserveFuture){
+function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
   var currCommand = [];
   var lastStartedCommand = undefined;
   var finishedCommand = [];
@@ -15,6 +15,9 @@ function Time(_actionFunction, _body, _preserveFuture){
   var onCommandUncomplete = function(){};
   var onCommandStart = function(){};
   var body = _body;
+  
+  if(_snapshotFunction == undefined) _snapshotFunction = function(){};
+  var snapShotData = _snapshotFunction();
   
   function setCommandCompleteCallback(callback){
     onCommandComplete = callback;
@@ -85,7 +88,7 @@ function Time(_actionFunction, _body, _preserveFuture){
       if((forward && delta >= timeRemaining) || (!forward && delta + timeCompleted <= 0 ))
       {
         var timeChange = (forward) ? timeRemaining : -timeCompleted;
-        applyTimeToAction(timeChange, forward);
+        applyTimeToAction( (forward)? 1 : 0, forward);
         delta -= timeChange;
                 
         if(forward){
@@ -113,7 +116,8 @@ function Time(_actionFunction, _body, _preserveFuture){
             currCommand = [];
           }
           currCommand.splice(0, 0, cmd);
-        }          
+        }
+        
         //snap up the orientation and position. It gets off due to bad precision at really high mults.
         body.rotation.x = closestMult(Math.PI/2, body.rotation.x);
         body.rotation.y = closestMult(Math.PI/2, body.rotation.y);
@@ -124,8 +128,8 @@ function Time(_actionFunction, _body, _preserveFuture){
         
         timeRemaining = (forward) ? ((currCommand[0] == undefined)?stepLength:currCommand[0].length) : 0;
       }else{
-        applyTimeToAction(delta, forward);
         timeRemaining -= delta;
+        applyTimeToAction(timeCompleted / currCommand[0].length, forward);
         delta = 0;
       }
     }    
@@ -136,17 +140,20 @@ function Time(_actionFunction, _body, _preserveFuture){
     currCommand.push({cmd: command, data: data, length: length});
   }
 
-  function applyTimeToAction(delta, forward){
+  function applyTimeToAction(t, forward){
     if(actionFunction != undefined && currCommand[0] != undefined)
     { 
       if(forward && lastStartedCommand != currCommand[0])
       { 
+        snapShotData = _snapshotFunction();
         lastStartedCommand = currCommand[0];
         var activated = onCommandStart(currCommand[0]);
         currCommand[0].active = activated;
       }
         
-      actionFunction((currCommand[0].active) ? currCommand[0].cmd : "wait", delta, currCommand[0].data);
+      var cmd = (currCommand[0].active) ? currCommand[0].cmd : "wait";
+      
+      actionFunction(cmd, t, currCommand[0].data, snapShotData);
     }
   }
   

@@ -6,13 +6,32 @@ function Block(data) {
   this.body = THREE.SceneUtils.createMultiMaterialObject( data.blockGeo, this.personalColor ); 
   this.setPosition(data.pos);
   
-  this.time = new Time(actions, this.body, false);
+  this.time = new Time(actions, this.body, false, takeSnapshot);
   
-  function actions(command, delta, direction){
+  function takeSnapshot(){
+    var positionCopy = new THREE.Vector3();
+    positionCopy.copy(self.body.position);
+    var rotationCopy = new THREE.Vector3();
+    rotationCopy.copy(self.body.rotation);
+    return {
+      position: positionCopy,
+      rotation: rotationCopy
+    };
+  }
+  
+  function actions(command, time, direction, snapshotData){
     switch(command){
       case "push":
-        direction.normalize();
-        self.body.translateOnAxis(direction, stepSize * delta * (1 / stepLength));
+        var dir = new THREE.Vector3();
+        dir.copy(direction);
+        
+        dir.normalize();
+        
+        var basePosition = new THREE.Vector3();
+        basePosition.copy(snapshotData.position);
+        dir.multiplyScalar( time * stepSize);
+        basePosition.add( dir );
+        self.body.position.copy(basePosition);
       break;
     }
   }
@@ -32,7 +51,8 @@ function Block(data) {
         if(command.active)
         {
           var newPos = new THREE.Vector3();
-          var direction = command.data;
+          var direction = new THREE.Vector3();
+          direction.copy(command.data);
           direction.multiplyScalar(stepSize);
           newPos.copy(self.body.position);
           newPos.add(direction);
@@ -53,7 +73,8 @@ function Block(data) {
     function(data){
       if(data.cmd == "push"){
         var newPos = new THREE.Vector3();
-        var direction = data.data;
+        var direction = new THREE.Vector3();
+        direction.copy(data.data);
         direction.multiplyScalar(stepSize);
         newPos.copy(self.body.position);
         newPos.add(direction);

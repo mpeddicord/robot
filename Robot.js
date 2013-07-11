@@ -6,22 +6,45 @@ function Robot(data) {
   this.body = THREE.SceneUtils.createMultiMaterialObject( new THREE.OctahedronGeometry(25), this.personalColor );  
   this.setPosition(data.pos);
   
-  this.time = new Time(actions, this.body, true);
+  this.time = new Time(actions, this.body, true, takeSnapshot);
   
-  function actions(command, delta)
+  function takeSnapshot(){
+    var positionCopy = new THREE.Vector3();
+    positionCopy.copy(self.body.position);
+    var rotationCopy = new THREE.Vector3();
+    rotationCopy.copy(self.body.rotation);
+    return {
+      position: positionCopy,
+      rotation: rotationCopy
+    };
+  }
+  
+  function actions(command, time, data, snapshotData)
   {  
     switch(command){
       case "forward":
-        self.body.translateX(stepSize * delta * (1 / stepLength));
-        break
       case "back":
-        self.body.translateX(-stepSize * delta * (1 / stepLength));
+        var v1 = new THREE.Vector3( 1, 0, 0 );
+        if(command == "back") v1.x *= -1;
+        var basePosition = new THREE.Vector3();
+        basePosition.copy(snapshotData.position);
+        v1.applyEuler( self.body.rotation, self.body.eulerOrder );
+        basePosition.add( v1.multiplyScalar( time * stepSize ) );
+        self.body.position.copy(basePosition);
         break;
       case "left":
-        self.body.rotateOnAxis(new THREE.Vector3(0,1,0), (Math.PI / 2) * delta * (1 / stepLength));
-        break;
       case "right":
-        self.body.rotateOnAxis(new THREE.Vector3(0,1,0), (-Math.PI / 2) * delta * (1 / stepLength));
+        var mult = (command == "right")? -1 : 1;
+        var baseRotation = new THREE.Vector3();
+        baseRotation.copy(snapshotData.rotation);
+        var q1 = new THREE.Quaternion();
+        var q2 = new THREE.Quaternion();
+        var axis = new THREE.Vector3(0,1,0);
+        var angle = mult * (Math.PI / 2) * time;
+        q1.setFromAxisAngle( axis, angle );
+				q2.setFromEuler( baseRotation, self.body.eulerOrder );
+				q2.multiply( q1 );
+				self.body.rotation.setEulerFromQuaternion( q2, self.body.eulerOrder );
         break;
       case "wait":
         break;
