@@ -214,7 +214,16 @@ function World(scene) {
     
     var ray = projector.pickingRay( vector, camera );
     var intersects = ray.intersectObjects( scene.children, true );
-    console.log(intersects);
+    
+    var firstObject = undefined;
+    for(var i in intersects) {
+      if ("gameObject" in intersects[i].object.userData) {
+        firstObject = intersects[i].object.userData.gameObject;
+        break;
+      }
+    }
+    
+    console.log(firstObject);
   }
   
   init();
