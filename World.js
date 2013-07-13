@@ -196,6 +196,8 @@ function World(scene) {
     $("#console").html("");
     var timeControl = delta * timeMult;
     
+    robots[0].printState();
+    
     for (var i in robots)
       robots[i].update(timeControl);
     

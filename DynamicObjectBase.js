@@ -47,5 +47,5 @@ DynamicObjectBase.prototype.update = function(delta){
 }
 
 DynamicObjectBase.prototype.printState = function(){
-  $("#console").html(time.printState());
+  $("#console").html(this.time.printState());
 }

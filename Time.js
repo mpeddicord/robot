@@ -4,7 +4,6 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
   var finishedCommand = [];
   var timeRemaining = stepLength;
   var preserveFuture = (_preserveFuture != undefined) ? _preserveFuture : true;
-  var inHistory = false;
   
   var actionFunction = _actionFunction; 
   if(actionFunction == undefined)
@@ -17,7 +16,6 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
   var body = _body;
   
   if(_snapshotFunction == undefined) _snapshotFunction = function(){};
-  var snapShotData = _snapshotFunction();
   
   function setCommandCompleteCallback(callback){
     onCommandComplete = callback;
@@ -62,31 +60,16 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
       if(!forward) {
         lastStartedCommand = undefined;
       }
-  
-      inHistory = false;
-      //Special code for waiting when we reach the end of the command list
-      if(forward && currCommand.length == 0){
-        inHistory = true;
-        if(finishedCommand.length == 0 || finishedCommand[finishedCommand.length-1].cmd != "wait"){
-          finishedCommand.push({cmd: "wait", data: null, length: 0});
-        }
-        finishedCommand[finishedCommand.length-1].length += delta;
+      
+      if(currCommand.length == 0)
         return;
-      }
       
-      if(!preserveFuture && !forward && currCommand.length >= 1 && currCommand[0].cmd == "wait"){
-        currCommand[0].length += delta;
-        timeRemaining += delta;
-        currCommand[0].length = THREE.Math.clamp(currCommand[0].length, 0, currCommand[0].length);
-      }
-      
-      var len = (currCommand[0] == undefined)? stepLength: currCommand[0].length;
-      
-      var timeCompleted = len - timeRemaining;
+      var timeCompleted = currCommand[0].length - timeRemaining;
       
       //If we can complete the event with time to spare
       if((forward && delta >= timeRemaining) || (!forward && delta + timeCompleted <= 0 ))
       {
+        
         var timeChange = (forward) ? timeRemaining : -timeCompleted;
         applyTimeToAction( (forward)? 1 : 0, forward);
         delta -= timeChange;
@@ -98,12 +81,12 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
             onCommandComplete(currCmd);
             finishedCommand.push(currCmd);
           }
-          
+          if(currCommand.length == 0)
+            addCommand("wait", undefined, stepLength);
         }
         else
         {
-          if(currCommand[0] != undefined)
-            onCommandUncomplete(currCommand[0]);
+          onCommandUncomplete(currCommand[0]);
           if(finishedCommand.length == 0)
           {
             //We have rewound all the way to the very beginning
@@ -126,10 +109,17 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
         body.position.y = closestMult(stepSize, body.position.y);
         body.position.z = closestMult(stepSize, body.position.z);
         
-        timeRemaining = (forward) ? ((currCommand[0] == undefined)?stepLength:currCommand[0].length) : 0;
-      }else{
+        if(!forward)
+          timeRemaining = 0;
+        else {
+          timeRemaining = currCommand[0].length;
+        }
+      }else if(currCommand.length > 0 && !(!forward && finishedCommand.length != 0)){
         timeRemaining -= delta;
         applyTimeToAction(timeCompleted / currCommand[0].length, forward);
+        //$("#console").html("time: " + timeCompleted / currCommand[0].length);
+        delta = 0;
+      }else{
         delta = 0;
       }
     }    
@@ -138,6 +128,8 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
   function addCommand(command, data, length){
     if(length == undefined) length = stepLength;
     currCommand.push({cmd: command, data: data, length: length});
+    if(currCommand.length == 1)
+      timeRemaining = length;
   }
 
   function applyTimeToAction(t, forward){
@@ -145,7 +137,7 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
     { 
       if(forward && lastStartedCommand != currCommand[0])
       { 
-        snapShotData = _snapshotFunction();
+        currCommand[0].snapShotData = _snapshotFunction();
         lastStartedCommand = currCommand[0];
         var activated = onCommandStart(currCommand[0]);
         currCommand[0].active = activated;
@@ -153,7 +145,7 @@ function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
         
       var cmd = (currCommand[0].active) ? currCommand[0].cmd : "wait";
       
-      actionFunction(cmd, t, currCommand[0].data, snapShotData);
+      actionFunction(cmd, t, currCommand[0].data, currCommand[0].snapShotData);
     }
   }
   
