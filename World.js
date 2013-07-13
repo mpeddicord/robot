@@ -47,7 +47,7 @@ function World(scene) {
     
     createWallRect(-11, -11, 21, 21);
     
-    selectedRobot = robots[0];
+    selectRobot(robots[0]);
 
     for(var i = 0; i < 100; i++)
     {
@@ -104,12 +104,12 @@ function World(scene) {
       if(keycode == 219) //[
       {
         selectedRobotNum = (selectedRobotNum+1) % robots.length;
-        selectedRobot = robots[selectedRobotNum];
+        selectRobot(robots[selectedRobotNum]);
       }
       if(keycode == 221) //]
       {
         selectedRobotNum = (selectedRobotNum-1) % robots.length;
-        selectedRobot = robots[selectedRobotNum];
+        selectRobot(robots[selectedRobotNum]);
       }
       if(keycode == 32)// Space
       {
@@ -224,7 +224,7 @@ function World(scene) {
     }
     
     if (firstObject instanceof Robot) {
-      selectedRobot = firstObject;
+      selectRobot(firstObject);
     }
     
     console.log(firstObject);
@@ -239,5 +239,14 @@ function World(scene) {
     worldStep : step,
     rotMod : rotMod,
     handleClicks: handleClicks
+  }
+  
+  function selectRobot(robot) {
+    if (selectedRobot != undefined) {
+      selectedRobot.deselect();
+    }
+    
+    robot.select();
+    selectedRobot = robot;
   }
 };
