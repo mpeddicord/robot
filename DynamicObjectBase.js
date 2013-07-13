@@ -49,3 +49,11 @@ DynamicObjectBase.prototype.update = function(delta){
 DynamicObjectBase.prototype.printState = function(){
   $("#console").html(this.time.printState());
 }
+
+DynamicObjectBase.prototype.select = function() {
+  this.body.children[1].material.color = new THREE.Color(0xFFFFFF);
+}
+
+DynamicObjectBase.prototype.deselect = function() {
+  this.body.children[1].material.color = new THREE.Color(0x000000);
+}

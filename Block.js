@@ -4,6 +4,8 @@ function Block(data) {
   var self = this;
   
   this.body = THREE.SceneUtils.createMultiMaterialObject( data.blockGeo, this.personalColor ); 
+  this.body.children[0].userData.gameObject = this;
+  
   this.setPosition(data.pos);
   
   this.time = new Time(actions, this.body, false, takeSnapshot);

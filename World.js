@@ -47,7 +47,7 @@ function World(scene) {
     
     createWallRect(-11, -11, 21, 21);
     
-    selectedRobot = robots[0];
+    selectRobot(robots[0]);
 
     for(var i = 0; i < 100; i++)
     {
@@ -104,12 +104,12 @@ function World(scene) {
       if(keycode == 219) //[
       {
         selectedRobotNum = (selectedRobotNum+1) % robots.length;
-        selectedRobot = robots[selectedRobotNum];
+        selectRobot(robots[selectedRobotNum]);
       }
       if(keycode == 221) //]
       {
         selectedRobotNum = (selectedRobotNum-1) % robots.length;
-        selectedRobot = robots[selectedRobotNum];
+        selectRobot(robots[selectedRobotNum]);
       }
       if(keycode == 32)// Space
       {
@@ -206,27 +206,30 @@ function World(scene) {
      
     updateMarkers();
   }
-  
-  function handleClicks(event, camera, projector){
-    event.preventDefault();
-    var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
-    projector.unprojectVector( vector, camera );
 
-    var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+  function handleClicks(cx, cy, camera, projector){
+    var x = cx * 2 - 1;
+    var y = -cy * 2 + 1;
 
-    for(var i in robots){
-      var intersects = raycaster.intersectObject( robots[i].body, false );
-
-      if ( intersects.length > 0 ) {
-        console.log("Found anything?");
-        //intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
-        //
-        //var particle = new THREE.Particle( particleMaterial );
-        //particle.position = intersects[ 0 ].point;
-        //particle.scale.x = particle.scale.y = 8;
-        //scene.add( particle );
+    var vector = new THREE.Vector3(x, y, 0);
+    printVector(vector, "click");
+    
+    var ray = projector.pickingRay( vector, camera );
+    var intersects = ray.intersectObjects( scene.children, true );
+    
+    var firstObject = undefined;
+    for(var i in intersects) {
+      if ("gameObject" in intersects[i].object.userData) {
+        firstObject = intersects[i].object.userData.gameObject;
+        break;
       }
     }
+    
+    if (firstObject instanceof Robot) {
+      selectRobot(firstObject);
+    }
+    
+    console.log(firstObject);
   }
   
   init();
@@ -238,5 +241,14 @@ function World(scene) {
     worldStep : step,
     rotMod : rotMod,
     handleClicks: handleClicks
+  }
+  
+  function selectRobot(robot) {
+    if (selectedRobot != undefined) {
+      selectedRobot.deselect();
+    }
+    
+    robot.select();
+    selectedRobot = robot;
   }
 };

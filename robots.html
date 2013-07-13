@@ -16,6 +16,10 @@
   </head>
   <body>
     <script src="three.min.js"></script>
+    <!--Use this one to debug three.js 
+    <script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+    -->
+
     <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>  
     <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script src="stats.min.js"></script>
@@ -52,9 +56,7 @@
           var cx = (event.clientX-containerLeft) / containerWidth; 
           var cy = (event.clientY-containerTop) / containerHeight; 
           
-          //These calls are intentionally disabled for now.
-          //gridWorld.handleClicks( event, camera, projector ); // This is the interface in master.
-          //gridWorld.handleClicks( cx, cy, camera, projector ); //This is the new interface in picking.
+          gridWorld.handleClicks( cx, cy, camera, projector ); //This is the new interface in picking.
         }
 
         function init() {

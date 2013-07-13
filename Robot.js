@@ -4,6 +4,8 @@ function Robot(data) {
   var self = this;
   
   this.body = THREE.SceneUtils.createMultiMaterialObject( new THREE.OctahedronGeometry(25), this.personalColor );  
+  this.body.children[0].userData.gameObject = this;
+  
   this.setPosition(data.pos);
   
   this.time = new Time(actions, this.body, true, takeSnapshot);
