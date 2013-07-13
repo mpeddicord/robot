@@ -223,6 +223,10 @@ function World(scene) {
       }
     }
     
+    if (firstObject instanceof Robot) {
+      selectedRobot = firstObject;
+    }
+    
     console.log(firstObject);
   }
   
