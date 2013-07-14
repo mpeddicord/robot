@@ -195,14 +195,8 @@ function World(scene) {
     $("#timeMult").html(timeMult + "x");
     $("#console").html("");
     var timeControl = delta * timeMult;
-    
-    robots[0].printState();
-    
-    for (var i in robots)
-      robots[i].update(timeControl);
-    
-    for (var i in blockList)
-      blockList[i].update(timeControl);
+
+    TIME.update(timeControl);
      
     updateMarkers();
   }

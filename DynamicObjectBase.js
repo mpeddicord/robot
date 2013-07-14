@@ -23,8 +23,16 @@ DynamicObjectBase = function(data) {
   }
   
   this.body = undefined;
-  this.time = undefined;
   this.data = data;
+}
+
+DynamicObjectBase.prototype.snapToGrid = function(){
+  this.body.rotation.x = closestMult(Math.PI/2, this.body.rotation.x);
+  this.body.rotation.y = closestMult(Math.PI/2, this.body.rotation.y);
+  this.body.rotation.z = closestMult(Math.PI/2, this.body.rotation.z);
+  this.body.position.x = closestMult(stepSize, this.body.position.x);
+  this.body.position.y = closestMult(stepSize, this.body.position.y);
+  this.body.position.z = closestMult(stepSize, this.body.position.z);
 }
 
 DynamicObjectBase.prototype.setPosition = function(pos) {
@@ -34,20 +42,30 @@ DynamicObjectBase.prototype.setPosition = function(pos) {
 }
 
 DynamicObjectBase.prototype.push = function(vector){
-  //if(pushing && !time.isInHistory())
-  //  return;
+
   vector.set(closestMult(1, vector.x), closestMult(1, vector.y), closestMult(1, vector.z));
   printVector(vector);
-  this.time.addCommand("push", vector);
-  //pushing = true;
+  //this.time.addCommand("push", vector);
+  //TIME.addCommand({start: 
 }
 
 DynamicObjectBase.prototype.update = function(delta){
-  this.time.update(delta);
+  
 }
 
 DynamicObjectBase.prototype.printState = function(){
-  $("#console").html(this.time.printState());
+  
+}
+
+DynamicObjectBase.prototype.takeSnapshot = function(){
+  var positionCopy = new THREE.Vector3();
+  positionCopy.copy(this.body.position);
+  var rotationCopy = new THREE.Vector3();
+  rotationCopy.copy(this.body.rotation);
+  return {
+    position: positionCopy,
+    rotation: rotationCopy
+  };
 }
 
 DynamicObjectBase.prototype.select = function() {

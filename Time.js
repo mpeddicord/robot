@@ -1,167 +1,121 @@
-function Time(_actionFunction, _body, _preserveFuture, _snapshotFunction){
-  var currCommand = [];
-  var lastStartedCommand = undefined;
-  var finishedCommand = [];
-  var timeRemaining = stepLength;
-  var preserveFuture = (_preserveFuture != undefined) ? _preserveFuture : true;
-  
-  var actionFunction = _actionFunction; 
-  if(actionFunction == undefined)
-  {
-    console.log("ERROR: Made a time object without an actionFunction");
+function Time(){
+  var commandList = [];
+  for(var m = 0; m < 1000; m++){
+    commandList[m] = [];
   }
-  var onCommandComplete = function(){};
-  var onCommandUncomplete = function(){};
-  var onCommandStart = function(){};
-  var body = _body;
+  var needle = 0;
   
-  if(_snapshotFunction == undefined) _snapshotFunction = function(){};
-  
-  function setCommandCompleteCallback(callback){
-    onCommandComplete = callback;
+  function getIndex(){
+    return Math.floor(needle / stepLength);
   }
   
-  function setCommandUncompleteCallback(callback){
-    onCommandUncomplete = callback;
-  }
-  
-  function setCommandStartCallback(callback){
-    onCommandStart = callback;
-  }
-  
-  function printState(){
-    var print = "";
-    for(var i = 0; i < finishedCommand.length; i++)
-    {
-      var fc = finishedCommand[i];
-      if(finishedCommand[i] != undefined)
-        print += "(len: " + fc.length.toFixed(3) + ", cmd: " + fc.cmd + ")<br />";
-      else
-        print += finishedCommand[i];
+  function onComplete(index){
+    if(commandList[index] != undefined && commandList[index].length){
+      for(var i = 0; i < commandList[index].length; i++){
+        var command = commandList[index][i];
+        command.complete(command);
+      }
     }
-    print += timeRemaining.toFixed(3) + "/" + ((currCommand[0] == undefined)? "undefined" : currCommand[0].length) + " &#60;-- Progress<br />";
-    for(var i = 0; i < currCommand.length; i++){
-      var cc = currCommand[i];
-      if(currCommand[i] != undefined)
-        print += "(len: " + cc.length.toFixed(3) + ", cmd: " + cc.cmd + ")<br />";
-      else
-        print += currCommand[i];
-      
-    }
-    return print;
   }
-
+  
+  function onStart(index){
+    if(commandList[index] != undefined && commandList[index].length){
+      for(var i = 0; i < commandList[index].length; i++){
+        var command = commandList[index][i];
+        command.snapshotData = command.snapshotFunction(command);
+        command.active = command.start(command);
+      }
+    }
+  }
+  
+  function onAction(){
+    var index = getIndex();
+    if(commandList[index] != undefined && commandList[index].length){
+      for(var i = 0; i < commandList[index].length; i++){
+        var command = commandList[index][i];
+        if(command.active)
+          command.action(needle / stepLength, command);
+      }
+    }
+  }   
+  
+  function snapToGrid(index){
+    if(commandList[index] != undefined && commandList[index].length){
+      for(var i = 0; i < commandList[index].length; i++){
+        var command = commandList[index][i];
+      }
+    }
+  }
+   
   function update(delta)
   {
-    //While there is time to process
-    while(delta != 0 && !isNaN(delta))
-    {
-      var forward = delta > 0;
-      if(!forward) {
-        lastStartedCommand = undefined;
-      }
+    var forward = delta > 0;
+    
+    while(delta > 0 || (delta < 0 && needle >= 0)){
+      needle = Math.max(0, needle);
+      var needleStart = needle;
+      var needleEnd = needleStart + delta;
       
-      if(currCommand.length == 0)
-        return;
+      var startTime = needleStart / stepLength;
+      var startIndex = getIndex();
+      var percentComplete = startTime - startIndex;
+      var endIndex = Math.floor(needleEnd / stepLength);
       
-      var timeCompleted = currCommand[0].length - timeRemaining;
-      
-      //If we can complete the event with time to spare
-      if((forward && delta >= timeRemaining) || (!forward && delta + timeCompleted <= 0 ))
-      {
-        
-        var timeChange = (forward) ? timeRemaining : -timeCompleted;
-        applyTimeToAction( (forward)? 1 : 0, forward);
-        delta -= timeChange;
-                
+      if(startIndex != endIndex){ //We need to do some catch up
+        var timeComplete = percentComplete * stepLength;
+        delta -= (forward)? stepLength - timeComplete : -timeComplete;
+        needle = (forward)? ((startIndex + 1) * stepLength) : (startIndex + stepLength) - 0.00000001;
+        snapToGrid(startIndex);        
         if(forward){
-          var currCmd = currCommand.shift();
-          if(currCmd != undefined)
-          {
-            onCommandComplete(currCmd);
-            finishedCommand.push(currCmd);
-          }
-          if(currCommand.length == 0)
-            addCommand("wait", undefined, stepLength);
+          onComplete(startIndex);
+          onStart(startIndex + 1);
+        }else{
+          onUncomplete(startIndex);
         }
-        else
-        {
-          onCommandUncomplete(currCommand[0]);
-          if(finishedCommand.length == 0)
-          {
-            //We have rewound all the way to the very beginning
-            break;
-          }
-          
-          var cmd = finishedCommand.pop();
-          if(!preserveFuture)
-          {
-            currCommand = [];
-          }
-          currCommand.splice(0, 0, cmd);
-        }
-        
-        //snap up the orientation and position. It gets off due to bad precision at really high mults.
-        body.rotation.x = closestMult(Math.PI/2, body.rotation.x);
-        body.rotation.y = closestMult(Math.PI/2, body.rotation.y);
-        body.rotation.z = closestMult(Math.PI/2, body.rotation.z);
-        body.position.x = closestMult(stepSize, body.position.x);
-        body.position.y = closestMult(stepSize, body.position.y);
-        body.position.z = closestMult(stepSize, body.position.z);
-        
-        if(!forward)
-          timeRemaining = 0;
-        else {
-          timeRemaining = currCommand[0].length;
-        }
-      }else if(currCommand.length > 0 && !(!forward && finishedCommand.length != 0)){
-        timeRemaining -= delta;
-        applyTimeToAction(timeCompleted / currCommand[0].length, forward);
-        //$("#console").html("time: " + timeCompleted / currCommand[0].length);
-        delta = 0;
       }else{
+        needle = needleEnd;
         delta = 0;
       }
-    }    
-  }
-  
-  function addCommand(command, data, length){
-    if(length == undefined) length = stepLength;
-    currCommand.push({cmd: command, data: data, length: length});
-    if(currCommand.length == 1)
-      timeRemaining = length;
-  }
-
-  function applyTimeToAction(t, forward){
-    if(actionFunction != undefined && currCommand[0] != undefined)
-    { 
-      if(forward && lastStartedCommand != currCommand[0])
-      { 
-        currCommand[0].snapShotData = _snapshotFunction();
-        lastStartedCommand = currCommand[0];
-        var activated = onCommandStart(currCommand[0]);
-        currCommand[0].active = activated;
-      }
-        
-      var cmd = (currCommand[0].active) ? currCommand[0].cmd : "wait";
       
-      actionFunction(cmd, t, currCommand[0].data, currCommand[0].snapShotData);
+      onAction();
     }
   }
   
-  function isInHistory()
-  {
-    return inHistory;
+  function addCommandAtIndex(commandData, index){
+    if(!verifyCommand(commandData)){
+      return;
+    }
+    if(commandList[index] == undefined)
+      commandList[index] = [];
+    commandList[index].push(commandData);
+  }
+  
+  function addCommand(commandData){
+    addCommandAtIndex(commandData, Math.ceil(needle / stepLength));
+  }
+  
+  function verifyCommand(commandData){
+    var verified = true;
+    var requiredFunctions = ["start", "action", "snapshotFunction", "complete", "uncomplete"];
+    for(var i in requiredFunctions){
+      if(typeof commandData[requiredFunctions[i]] != 'function'){
+        console.log("Error: command missing " + requiredFunctions[i] + " function.");
+        verified = false;
+      }
+    }
+    if(typeof commandData.object == "undefined"){
+      console.log("Error: command missing object data.");
+      verified = false;
+    }
+    
+    return verified;
   }
   
   return {
     update: update,
     addCommand: addCommand,
-    onCommandComplete: onCommandComplete,
-    setCommandCompleteCallback: setCommandCompleteCallback,
-    setCommandUncompleteCallback: setCommandUncompleteCallback,
-    setCommandStartCallback: setCommandStartCallback,
-    printState: printState,
-    isInHistory: isInHistory
+    addCommandAtIndex: addCommandAtIndex
   }
 };
+
+TIME = new Time();
