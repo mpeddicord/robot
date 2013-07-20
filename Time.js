@@ -5,6 +5,8 @@ function Time(){
   }
   var needle = 0;
   
+  function getNeedle(){ return needle; }
+  
   function getIndex(){
     return Math.floor(needle / stepLength);
   }
@@ -32,8 +34,8 @@ function Time(){
       }
     }
     for(var i in toRemove){
-      delete commandList[index][toRemove[i]];
-    }
+      commandList[index].splice(toRemove[i], 1);
+	}
   }
 
   function onStart(index){
@@ -155,6 +157,7 @@ function Time(){
   
   return {
     update: update,
+    getNeedle: getNeedle,
     addCommand: addCommand,
     addCommandAtIndex: addCommandAtIndex
   }

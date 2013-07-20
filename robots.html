@@ -44,17 +44,19 @@
     		//$( "#draggable3" ).draggable({ scroll: true, scrollSpeed: 100 });
   		});
   	</script>
-  	
+
+	<!--
   	<div id="draggable" class="ui-widget-content">
   		<p>Scroll set to true, default settings</p>
 	</div>
+	-->
 
     <script>
       $(document).ready(function(){
         var container, stats;
         var camera, projector, renderer;
         var gridWorld;
-        var screenSafeArea = 0.99;
+        var screenSafeArea = 0.80;
         var zoom = 1.3;
         
         var containerLeft, containerTop;
@@ -63,6 +65,11 @@
         window.onZoom = function(slider) {
           zoom = slider.value / 10.0;
           onWindowResize();
+        }
+        
+        window.resetSlider = function(slider){
+        	console.log("Hello");  
+        	slider.value = 500;
         }
 
         init();
@@ -84,7 +91,7 @@
           info.style.top = '50px';
           info.style.width = '100%';
           info.style.textAlign = 'left';
-          info.innerHTML = 'Time Mult: <span id="timeMult">1x</span><br />' + 
+          info.innerHTML = 'Time Mult: <span id="timeMult">1x</span><br />Needle: <span id="needle">1x</span><br />' + 
                           '<span id="console"></span>';
           container.appendChild( info );
           
@@ -241,10 +248,13 @@
     
     
     
-    
-    
-      <input id="zoom" type="range" min="12" max="25" style="position:absolute; bottom:20px;" onchange="onZoom(this);" />
-      
+      <div style="position:absolute; bottom:20px;">
+      	<h4>Controls</h4>
+      	Time Slider<br />
+      	<input id="timeScaler" type="range" min="0" max="1000" style="width:500px" onmouseup="resetSlider(this);"/> Pause<input type="checkbox" id="pause" name="pause"><br />
+      	Zoom<br />
+      	<input id="zoom" type="range" min="12" max="25" style="width:500px" onchange="onZoom(this);" />
+      </div>
       <div id="programs" style="position:absolute; bottom:5px; right:5px">
         <ul>
           <li><a href="#robo-1">Robot 1</a></li>
