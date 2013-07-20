@@ -23,9 +23,16 @@ function Time(){
   
   function onUncomplete(index){
     if(!validIndex(index)) return;
+    var toRemove = [];
     for(var i in commandList[index]){
       var command = commandList[index][i];
       command.uncomplete.call(command.object, command);
+      if(command.passive != undefined && command.passive){
+      	toRemove.push(i);
+      }
+    }
+    for(var i in toRemove){
+      delete commandList[index][toRemove[i]];
     }
   }
 

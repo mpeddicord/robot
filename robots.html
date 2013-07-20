@@ -20,6 +20,7 @@
     <script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
     -->
 
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
     <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>  
     <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script src="stats.min.js"></script>
@@ -32,6 +33,21 @@
     <script src="Robot.js"></script>
     <script src="Block.js"></script>
     <script src="World.js"></script>
+    
+    <style>
+  		#draggable, #draggable2, #draggable3 { width: 100px; height: 100px; padding: 0.5em; float: left; margin: 0 10px 10px 0; }
+  	</style>
+ 	 <script>
+  		$(function() {
+    		$( "#draggable" ).draggable({ grid: [ 50, 20 ] });
+    		//$( "#draggable2" ).draggable({ scroll: true, scrollSensitivity: 100 });
+    		//$( "#draggable3" ).draggable({ scroll: true, scrollSpeed: 100 });
+  		});
+  	</script>
+  	
+  	<div id="draggable" class="ui-widget-content">
+  		<p>Scroll set to true, default settings</p>
+	</div>
 
     <script>
       $(document).ready(function(){
@@ -222,6 +238,11 @@
         }
       });
     </script>
+    
+    
+    
+    
+    
       <input id="zoom" type="range" min="12" max="25" style="position:absolute; bottom:20px;" onchange="onZoom(this);" />
       
       <div id="programs" style="position:absolute; bottom:5px; right:5px">
