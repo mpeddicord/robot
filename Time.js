@@ -5,6 +5,8 @@ function Time(){
   }
   var needle = 0;
   
+  function getNeedle(){ return needle; }
+  
   function getIndex(){
     return Math.floor(needle / stepLength);
   }
@@ -23,10 +25,17 @@ function Time(){
   
   function onUncomplete(index){
     if(!validIndex(index)) return;
+    var toRemove = [];
     for(var i in commandList[index]){
       var command = commandList[index][i];
       command.uncomplete.call(command.object, command);
+      if(command.passive != undefined && command.passive){
+      	toRemove.push(i);
+      }
     }
+    for(var i in toRemove){
+      commandList[index].splice(toRemove[i], 1);
+	}
   }
 
   function onStart(index){
@@ -148,6 +157,7 @@ function Time(){
   
   return {
     update: update,
+    getNeedle: getNeedle,
     addCommand: addCommand,
     addCommandAtIndex: addCommandAtIndex
   }

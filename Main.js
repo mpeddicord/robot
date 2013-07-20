@@ -12,6 +12,10 @@ function main(){
     zoom = slider.value / 10.0;
     onWindowResize();
   }
+  
+  window.resetSlider = function(slider){
+    slider.value = 500;
+  }
 
   init();
   animate();

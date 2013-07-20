@@ -109,7 +109,8 @@ DynamicObjectBase.prototype.push = function(vector){
                     start: this.pushStart, 
                     complete: function(){}, 
                     uncomplete: this.pushUncomplete, 
-                    snapshotFunction:this.takeSnapshot});
+                    snapshotFunction:this.takeSnapshot,
+                    passive: true });
 }
 
 DynamicObjectBase.prototype.takeSnapshot = function(){

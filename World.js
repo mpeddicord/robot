@@ -27,14 +27,7 @@ function World(scene) {
       event = event || window.event;
       var keycode = event.charCode || event.keyCode;
       console.log(keycode);
-      if(keycode == 187)
-      {
-        timeMult += 1;
-      }
-      if(keycode == 189)
-      {
-        timeMult -= 1;
-      }
+
       if(keycode == 39) //Right
       {
         selectedRobot.turnRight();
@@ -126,9 +119,19 @@ function World(scene) {
     return false;
   }
   
+  function getTimeMult(){
+    var slider = $("#timeScaler")[0];
+  	var timeValue = (slider.valueAsNumber / 500.0) - 1;
+  	
+  	if($('#pause').is(':checked')) return 0;
+  	
+  	return THREE.Math.mapLinear(timeValue, -1, 1, -10, 12);
+  }
   function update(delta)
   {
+  	timeMult = getTimeMult();
     $("#timeMult").html(timeMult + "x");
+    $("#needle").html(TIME.getNeedle().toFixed(3));
     $("#console").html("");
     var timeControl = delta * timeMult;
 

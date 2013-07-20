@@ -31,8 +31,31 @@
     <script src="World.js"></script>
     <script src="Main.js"></script>
     <script src="levels/test.js"></script>
+    
+    <style>
+  		#draggable, #draggable2, #draggable3 { width: 100px; height: 100px; padding: 0.5em; float: left; margin: 0 10px 10px 0; }
+  	</style>
+ 	 <script>
+  		$(function() {
+    		$( "#draggable" ).draggable({ grid: [ 50, 20 ] });
+    		//$( "#draggable2" ).draggable({ scroll: true, scrollSensitivity: 100 });
+    		//$( "#draggable3" ).draggable({ scroll: true, scrollSpeed: 100 });
+  		});
+  	</script>
 
-    <input id="zoom" type="range" min="12" max="25" style="position:absolute; bottom:20px;" onchange="onZoom(this);" />
+	<!--
+  	<div id="draggable" class="ui-widget-content">
+  		<p>Scroll set to true, default settings</p>
+	</div>
+	-->
+
+    <div style="position:absolute; bottom:20px;">
+      	<h4>Controls</h4>
+      	Time Slider<br />
+      	<input id="timeScaler" type="range" min="0" max="1000" style="width:500px" onmouseup="resetSlider(this);"/> Pause<input type="checkbox" id="pause" name="pause"><br />
+      	Zoom<br />
+      	<input id="zoom" type="range" min="12" max="25" style="width:500px" onchange="onZoom(this);" />
+    </div>
     
     <div id="programs" style="position:absolute; bottom:5px; right:5px">
       <ul>
