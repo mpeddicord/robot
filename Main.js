@@ -28,26 +28,7 @@ function main(){
   }
 
   function init() {
-    container = document.createElement( 'div' );
-    document.body.appendChild( container );
-          
-    var info = document.createElement( 'div' );
-    info.style.position = 'absolute';
-    info.style.top = '50px';
-    info.style.width = '100%';
-    info.style.textAlign = 'left';
-    info.innerHTML = 'Time Mult: <span id="timeMult">1x</span><br />' + 
-                    '<span id="console"></span>';
-    container.appendChild( info );
-    
-    /* //This is in HTML now
-    var sliderContainer = document.createElement( 'div' );
-    sliderContainer.style.position = 'absolute';
-    sliderContainer.style.bottom = '20px';
-    sliderContainer.style.width = '1000';
-    sliderContainer.innerHTML = '<input id="defaultSlider" type="range" min="0" max="500" />';
-    //document.body.appendChild( sliderContainer );
-    */
+    container = $( "#container" )[0];
 
     camera = new THREE.OrthographicCamera( 
       window.innerWidth / -zoom, 
