@@ -9,49 +9,76 @@ function Time(){
     return Math.floor(needle / stepLength);
   }
   
+  function validIndex(index){
+    return commandList[index] != undefined && commandList[index].length;
+  }
+  
   function onComplete(index){
-    if(commandList[index] != undefined && commandList[index].length){
-      for(var i = 0; i < commandList[index].length; i++){
-        var command = commandList[index][i];
-        command.complete(command);
-      }
+    if(!validIndex(index)) return;
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      command.complete.call(command.object, command);
     }
   }
   
+  function onUncomplete(index){
+    if(!validIndex(index)) return;
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      command.uncomplete.call(command.object, command);
+    }
+  }
+
   function onStart(index){
-    if(commandList[index] != undefined && commandList[index].length){
-      for(var i = 0; i < commandList[index].length; i++){
-        var command = commandList[index][i];
-        command.snapshotData = command.snapshotFunction(command);
-        command.active = command.start(command);
-      }
+    if(!validIndex(index)) return;
+    
+    //We do it this way, because start calls may add new commands for other objects immediately.
+    var currentObjIndex = 0;
+    while(currentObjIndex < commandList[index].length){
+      var command = commandList[index][currentObjIndex];
+      command.snapshotData = command.snapshotFunction.call(command.object);
+      command.active = command.start.call(command.object, command);
+      currentObjIndex++;
     }
   }
   
-  function onAction(){
-    var index = getIndex();
-    if(commandList[index] != undefined && commandList[index].length){
-      for(var i = 0; i < commandList[index].length; i++){
-        var command = commandList[index][i];
-        if(command.active)
-          command.action(needle / stepLength, command);
-      }
+  function onAction(index, percent){
+    if(!validIndex(index)) return;
+    
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      if(command.active)
+        command.action.call(command.object, percent, command);
     }
   }   
   
   function snapToGrid(index){
-    if(commandList[index] != undefined && commandList[index].length){
-      for(var i = 0; i < commandList[index].length; i++){
-        var command = commandList[index][i];
+    if(!validIndex(index)) return;
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      command.object.snapToGrid();
+    }
+  }
+  
+  function printState(){
+    var print = "";
+    print += "Needle: " + needle + "<br />";
+    for(var index in commandList){
+      if(validIndex(index)){
+        for(var i in commandList[index]){
+          var command = commandList[index][i];
+          print += "Slot: " + index + ", cmd: " + i + ":" + command.data + "<br />";
+        }
       }
     }
+    $("#console").html(print);
   }
    
   function update(delta)
   {
     var forward = delta > 0;
     
-    while(delta > 0 || (delta < 0 && needle >= 0)){
+    while(delta > 0 || (delta < 0 && needle > 0)){
       needle = Math.max(0, needle);
       var needleStart = needle;
       var needleEnd = needleStart + delta;
@@ -64,7 +91,10 @@ function Time(){
       if(startIndex != endIndex){ //We need to do some catch up
         var timeComplete = percentComplete * stepLength;
         delta -= (forward)? stepLength - timeComplete : -timeComplete;
-        needle = (forward)? ((startIndex + 1) * stepLength) : (startIndex + stepLength) - 0.00000001;
+        needle = (forward)? ((startIndex + 1) * stepLength) : (startIndex * stepLength) - 0.00000001;
+        
+        onAction(startIndex, (forward)?1:0 );
+
         snapToGrid(startIndex);        
         if(forward){
           onComplete(startIndex);
@@ -72,13 +102,17 @@ function Time(){
         }else{
           onUncomplete(startIndex);
         }
+        continue;
       }else{
         needle = needleEnd;
         delta = 0;
       }
       
-      onAction();
+      var percent = needle / stepLength - Math.floor(needle / stepLength);
+      onAction(startIndex, percent);
     }
+    
+    //printState();
   }
   
   function addCommandAtIndex(commandData, index){
@@ -87,7 +121,16 @@ function Time(){
     }
     if(commandList[index] == undefined)
       commandList[index] = [];
-    commandList[index].push(commandData);
+    
+    //This is probably temporary code, but the grid can't handle two commands at once, yet.
+    var alreadyHasACommandInSlot = false;
+    for(var i in commandList[index]){
+      if(commandList[index][i].object == commandData.object){
+        alreadyHasACommandInSlot = true;
+      }
+    }
+    if(!alreadyHasACommandInSlot)
+      commandList[index].push(commandData);
   }
   
   function addCommand(commandData){

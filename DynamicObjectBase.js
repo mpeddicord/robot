@@ -41,20 +41,68 @@ DynamicObjectBase.prototype.setPosition = function(pos) {
   this.body.position.z = pos.z;
 }
 
-DynamicObjectBase.prototype.push = function(vector){
+DynamicObjectBase.prototype.pushAction = function(time, commandObj){
+  var dir = new THREE.Vector3();
+  dir.copy(commandObj.data);
+  
+  dir.normalize();
+  
+  var basePosition = new THREE.Vector3();
+  basePosition.copy(commandObj.snapshotData.position);
+  dir.multiplyScalar( time * stepSize);
+  basePosition.add( dir );
+  this.body.position.copy(basePosition);
+}
 
+DynamicObjectBase.prototype.pushUncomplete = function(commandObj){
+  if(commandObj.active)
+  {
+    var newPos = new THREE.Vector3();
+    var direction = new THREE.Vector3();
+    direction.copy(commandObj.data);
+    direction.multiplyScalar(stepSize);
+    newPos.copy(this.body.position);
+    newPos.add(direction);
+    
+    moveObjInGrid(this, 
+            newPos.x, 
+            newPos.y, 
+            newPos.z, 
+            this.body.position.x, 
+            this.body.position.y,
+            this.body.position.z);
+  }
+}
+
+DynamicObjectBase.prototype.pushStart = function(commandObj){
+  var newPos = new THREE.Vector3();
+  var direction = new THREE.Vector3();
+  direction.copy(commandObj.data);
+  direction.multiplyScalar(stepSize);
+  newPos.copy(this.body.position);
+  newPos.add(direction);
+  
+  moveObjInGrid(this, 
+          this.body.position.x, 
+          this.body.position.y, 
+          this.body.position.z, 
+          newPos.x, 
+          newPos.y,
+          newPos.z);
+          
+  return SUCCESS;
+}
+
+DynamicObjectBase.prototype.push = function(vector){
   vector.set(closestMult(1, vector.x), closestMult(1, vector.y), closestMult(1, vector.z));
   printVector(vector);
-  //this.time.addCommand("push", vector);
-  //TIME.addCommand({start: 
-}
-
-DynamicObjectBase.prototype.update = function(delta){
-  
-}
-
-DynamicObjectBase.prototype.printState = function(){
-  
+  TIME.addCommand({ action: this.pushAction, 
+                    data: vector, 
+                    object: this, 
+                    start: this.pushStart, 
+                    complete: function(){}, 
+                    uncomplete: this.pushUncomplete, 
+                    snapshotFunction:this.takeSnapshot});
 }
 
 DynamicObjectBase.prototype.takeSnapshot = function(){
