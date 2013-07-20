@@ -62,23 +62,22 @@ Robot.prototype.actions = function(time, commandObj)
       if(commandObj.data == "back") v1.x *= -1;
       var basePosition = new THREE.Vector3();
       basePosition.copy(commandObj.snapshotData.position);
-      v1.applyEuler( this.body.rotation, this.body.eulerOrder );
+      v1.applyEuler( this.body.rotation );
       basePosition.add( v1.multiplyScalar( time * stepSize ) );
       this.setPosition(basePosition);
       break;
     case "left":
     case "right":
       var mult = (commandObj.data == "right")? -1 : 1;
-      var baseRotation = new THREE.Vector3();
-      baseRotation.copy(commandObj.snapshotData.rotation);
+      var baseRotation = commandObj.snapshotData.rotation.clone();
       var q1 = new THREE.Quaternion();
       var q2 = new THREE.Quaternion();
       var axis = new THREE.Vector3(0,1,0);
       var angle = mult * (Math.PI / 2) * time;
       q1.setFromAxisAngle( axis, angle );
-      q2.setFromEuler( baseRotation, this.body.eulerOrder );
+      q2.setFromEuler( baseRotation );
       q2.multiply( q1 );
-      this.body.rotation.setEulerFromQuaternion( q2, this.body.eulerOrder );
+      this.body.rotation.setFromQuaternion( q2 );
       break;
     case "wait":
       break;
@@ -91,7 +90,7 @@ Robot.prototype.uncompleteForward = function(commandObj){
     var newPos = new THREE.Vector3();
     newPos.copy(this.body.position);
     var v1 = new THREE.Vector3( 1, 0, 0 );
-    v1.applyEuler( this.body.rotation, this.body.eulerOrder );
+    v1.applyEuler( this.body.rotation );
     newPos.add( v1.multiplyScalar( stepSize ) );
   }
 }
@@ -100,7 +99,7 @@ Robot.prototype.startForward = function(commandObj){
   var newPos = new THREE.Vector3();
   newPos.copy(this.body.position);
   var v1 = new THREE.Vector3( 1, 0, 0 );
-  v1.applyEuler( this.body.rotation, this.body.eulerOrder );
+  v1.applyEuler( this.body.rotation );
   newPos.add( v1.multiplyScalar( stepSize ) );
   
   var objArray = getObjArray(newPos.x, newPos.y, newPos.z);

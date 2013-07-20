@@ -9,8 +9,7 @@ function World(scene) {
   
   var timeMult;
   
-  var numRobots = 3;
-  var robots;
+  var robots = new Array();
   var selectedRobotNum = 0;
   var selectedRobot;
   
@@ -21,53 +20,6 @@ function World(scene) {
       new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: false} ),
       new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 4, transparent: true, opacity:1} )
     ];
-    //generateBlocks();  
-    
-    addBlockToWorld(1,0,-1);
-    addBlockToWorld(1,0,-2);
-    
-    addBlockToWorld(2,0,-1);
-    addBlockToWorld(2,0,-2);
-    addBlockToWorld(2,0,-3);
-    
-    robots = new Array();
-    for(var i = 0; i < numRobots; i++){
-      robots[i] = new Robot({
-        pos : {
-          x: -3*stepSize, 
-          y: 0, 
-          z: stepSize*i*2
-        },
-        blockGeo:blockGeo, 
-        blockMaterials:blockMaterials
-      });
-      scene.add( robots[i].body );
-    }
-    
-    createWallRect(-11, -11, 21, 21);
-    
-    selectRobot(robots[0]);
-
-    for(var i = 0; i < 100; i++)
-    {
-      //robot.moveForward()
-      //robot.turnLeft();
-      //robot.moveForward()
-      //robot.turnLeft();
-      //robot.moveForward()
-      //robot.turnLeft();
-      //robot.moveForward()
-      //robot.turnLeft();
-      //robot.moveForward()
-      //robot.turnRight();
-      //robot.moveForward()
-      //robot.turnRight();
-      //robot.moveForward()
-      //robot.turnRight();
-      //robot.moveForward()
-      //robot.turnRight();
-    }
-    
     timeMult = 1;
     rotMod = 0;
     
@@ -143,30 +95,10 @@ function World(scene) {
     }
   }
   
-  function generateBlocks()
-  {
-    size = 7;
-    step = stepSize;
-    for (var x = 0; x < size; x++) {
-      for (var y = 0; y < size; y++) {
-        for (var z = 0; z < size; z++) {              
-          if(Math.random() > 0.75)
-          {
-            addBlockToWorld(x,y,z);
-          }
-        }
-      }
-    }
-  }
-  
   function addBlockToWorld(x, y, z, mass, color)
   {    
     var newBlock = new Block({
-      pos : {
-        x: (x * stepSize), 
-        y: (y * stepSize), 
-        z: (z * stepSize)
-      },
+      pos : { x:x, y:y, z:z },
       color: color,
       mass: mass,
       blockGeo:blockGeo, 
@@ -176,6 +108,12 @@ function World(scene) {
     blockList.push(newBlock);
     return newBlock;
   }
+    
+  function addRobotToWorld(r) {
+    robots.push(r);
+    scene.add( r.body );
+    selectRobot(robots[0]);
+  };
   
   function blocksIntersect(pos1, pos2)
   {
@@ -224,17 +162,6 @@ function World(scene) {
     console.log(firstObject);
   }
   
-  init();
-  
-  return {
-    addBlockToWorld : addBlockToWorld,
-    update : update,
-    worldSize : size,
-    worldStep : step,
-    rotMod : rotMod,
-    handleClicks: handleClicks
-  }
-  
   function selectRobot(robot) {
     if (selectedRobot != undefined) {
       selectedRobot.deselect();
@@ -243,4 +170,19 @@ function World(scene) {
     robot.select();
     selectedRobot = robot;
   }
+  
+  init();
+  
+  return {
+    addBlockToWorld : addBlockToWorld,
+    addRobotToWorld : addRobotToWorld,
+    createWallRect: createWallRect,
+    selectRobot : selectRobot,
+    update : update,
+    worldSize : size,
+    worldStep : step,
+    rotMod : rotMod,
+    handleClicks: handleClicks
+  }
 };
+

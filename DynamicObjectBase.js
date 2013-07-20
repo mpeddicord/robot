@@ -4,6 +4,10 @@ DynamicObjectBase = function(data) {
   if (data == undefined)
     data = { pos:{x:0,y:0,z:0} };
     
+  data.pos.x *= stepSize;
+  data.pos.y *= stepSize;
+  data.pos.z *= stepSize;
+    
   if (data.color == undefined)
     data.color = 0xBBBBBB + (0x444444) * Math.random();
     
@@ -111,8 +115,7 @@ DynamicObjectBase.prototype.push = function(vector){
 DynamicObjectBase.prototype.takeSnapshot = function(){
   var positionCopy = new THREE.Vector3();
   positionCopy.copy(this.body.position);
-  var rotationCopy = new THREE.Vector3();
-  rotationCopy.copy(this.body.rotation);
+  var rotationCopy = this.body.rotation.clone();
   return {
     position: positionCopy,
     rotation: rotationCopy
