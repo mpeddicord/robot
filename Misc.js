@@ -107,11 +107,11 @@ function getObjArray(x, y, z){
   }
 }
 
-function moveObjInGrid(obj, x1, y1, z1, x2, y2, z2){
+function moveObjInGrid(obj, oldPos, newPos){
   markersDirty = true;
 
-  var oldArray = getObjArray(x1, y1, z1);
-  var newArray = getObjArray(x2, y2, z2);
+  var oldArray = getObjArray(oldPos.x, oldPos.y, oldPos.z);
+  var newArray = getObjArray(newPos.x, newPos.y, newPos.z);
   
   var index = oldArray.indexOf(obj);
   if(index == -1){
@@ -122,8 +122,7 @@ function moveObjInGrid(obj, x1, y1, z1, x2, y2, z2){
   oldArray.splice(index, 1);
 }
 
-function addObjToGrid(obj){
-  var pos = obj.body.position;
+function addObjToGrid(obj, pos){
   getObjArray(pos.x, pos.y, pos.z).push(obj);
 }
 

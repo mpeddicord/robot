@@ -122,15 +122,7 @@ function Time(){
     if(commandList[index] == undefined)
       commandList[index] = [];
     
-    //This is probably temporary code, but the grid can't handle two commands at once, yet.
-    var alreadyHasACommandInSlot = false;
-    for(var i in commandList[index]){
-      if(commandList[index][i].object == commandData.object){
-        alreadyHasACommandInSlot = true;
-      }
-    }
-    if(!alreadyHasACommandInSlot)
-      commandList[index].push(commandData);
+    commandList[index].push(commandData);
   }
   
   function addCommand(commandData){

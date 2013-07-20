@@ -24,21 +24,39 @@ DynamicObjectBase = function(data) {
   
   this.body = undefined;
   this.data = data;
+  this.gridPos = undefined;
+}
+
+DynamicObjectBase.prototype.snapPosToGrid = function(p){
+  return {
+    x : closestMult(stepSize, p.x),
+    y : closestMult(stepSize, p.y),
+    z : closestMult(stepSize, p.z)
+  };
 }
 
 DynamicObjectBase.prototype.snapToGrid = function(){
   this.body.rotation.x = closestMult(Math.PI/2, this.body.rotation.x);
   this.body.rotation.y = closestMult(Math.PI/2, this.body.rotation.y);
   this.body.rotation.z = closestMult(Math.PI/2, this.body.rotation.z);
-  this.body.position.x = closestMult(stepSize, this.body.position.x);
-  this.body.position.y = closestMult(stepSize, this.body.position.y);
-  this.body.position.z = closestMult(stepSize, this.body.position.z);
+  
+  var pos = this.snapPosToGrid(this.body.position);
+  this.setPosition(pos);
 }
 
 DynamicObjectBase.prototype.setPosition = function(pos) {
   this.body.position.x = pos.x;
   this.body.position.y = pos.y;
   this.body.position.z = pos.z;
+
+  var newPos = this.snapPosToGrid(this.body.position);
+  
+  if (this.gridPos == undefined)
+    addObjToGrid(this, newPos);
+  else
+    moveObjInGrid(this, this.gridPos, newPos);
+  
+  this.gridPos = newPos;
 }
 
 DynamicObjectBase.prototype.pushAction = function(time, commandObj){
@@ -51,7 +69,8 @@ DynamicObjectBase.prototype.pushAction = function(time, commandObj){
   basePosition.copy(commandObj.snapshotData.position);
   dir.multiplyScalar( time * stepSize);
   basePosition.add( dir );
-  this.body.position.copy(basePosition);
+  
+  this.setPosition(basePosition);
 }
 
 DynamicObjectBase.prototype.pushUncomplete = function(commandObj){
@@ -62,15 +81,7 @@ DynamicObjectBase.prototype.pushUncomplete = function(commandObj){
     direction.copy(commandObj.data);
     direction.multiplyScalar(stepSize);
     newPos.copy(this.body.position);
-    newPos.add(direction);
-    
-    moveObjInGrid(this, 
-            newPos.x, 
-            newPos.y, 
-            newPos.z, 
-            this.body.position.x, 
-            this.body.position.y,
-            this.body.position.z);
+    newPos.add(direction);    
   }
 }
 
@@ -82,14 +93,6 @@ DynamicObjectBase.prototype.pushStart = function(commandObj){
   newPos.copy(this.body.position);
   newPos.add(direction);
   
-  moveObjInGrid(this, 
-          this.body.position.x, 
-          this.body.position.y, 
-          this.body.position.z, 
-          newPos.x, 
-          newPos.y,
-          newPos.z);
-          
   return SUCCESS;
 }
 

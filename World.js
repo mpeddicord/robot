@@ -41,7 +41,6 @@ function World(scene) {
         blockGeo:blockGeo, 
         blockMaterials:blockMaterials
       });
-      addObjToGrid(robots[i]);
       scene.add( robots[i].body );
     }
     
@@ -175,7 +174,6 @@ function World(scene) {
     });
     scene.add( newBlock.body );
     blockList.push(newBlock);
-    addObjToGrid(newBlock);
     return newBlock;
   }
   

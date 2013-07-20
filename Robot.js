@@ -64,7 +64,7 @@ Robot.prototype.actions = function(time, commandObj)
       basePosition.copy(commandObj.snapshotData.position);
       v1.applyEuler( this.body.rotation, this.body.eulerOrder );
       basePosition.add( v1.multiplyScalar( time * stepSize ) );
-      this.body.position.copy(basePosition);
+      this.setPosition(basePosition);
       break;
     case "left":
     case "right":
@@ -93,16 +93,8 @@ Robot.prototype.uncompleteForward = function(commandObj){
     var v1 = new THREE.Vector3( 1, 0, 0 );
     v1.applyEuler( this.body.rotation, this.body.eulerOrder );
     newPos.add( v1.multiplyScalar( stepSize ) );
-    moveObjInGrid(this, 
-        newPos.x, 
-        newPos.y, 
-        newPos.z, 
-        this.body.position.x, 
-        this.body.position.y,
-        this.body.position.z);
   }
 }
-
 
 Robot.prototype.startForward = function(commandObj){
   var newPos = new THREE.Vector3();
@@ -132,15 +124,6 @@ Robot.prototype.startForward = function(commandObj){
         objList[objIndex].push(new THREE.Vector3( direction.x, direction.y, direction.z ));
       }  
     }
-  }
-  if(goTime){
-    moveObjInGrid(this, 
-        this.body.position.x, 
-        this.body.position.y, 
-        this.body.position.z, 
-        newPos.x, 
-        newPos.y,
-        newPos.z);
   }
   
   return goTime;
