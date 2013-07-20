@@ -3,6 +3,7 @@ var stepSize = 50;
 var gridSize = 22;
 var EPSILON = 0.00000001;
 var offset = (stepSize * gridSize) / 2;
+var SUCCESS = true;
 
 var markersDirty = true;
 var showMarkers = false;

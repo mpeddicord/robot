@@ -1,168 +1,164 @@
-function Time(_actionFunction, _body, _preserveFuture){
-  var currCommand = [];
-  var lastStartedCommand = undefined;
-  var finishedCommand = [];
-  var timeRemaining = stepLength;
-  var preserveFuture = (_preserveFuture != undefined) ? _preserveFuture : true;
-  var inHistory = false;
-  
-  var actionFunction = _actionFunction; 
-  if(actionFunction == undefined)
-  {
-    console.log("ERROR: Made a time object without an actionFunction");
+function Time(){
+  var commandList = [];
+  for(var m = 0; m < 1000; m++){
+    commandList[m] = [];
   }
-  var onCommandComplete = function(){};
-  var onCommandUncomplete = function(){};
-  var onCommandStart = function(){};
-  var body = _body;
+  var needle = 0;
   
-  function setCommandCompleteCallback(callback){
-    onCommandComplete = callback;
+  function getIndex(){
+    return Math.floor(needle / stepLength);
   }
   
-  function setCommandUncompleteCallback(callback){
-    onCommandUncomplete = callback;
+  function validIndex(index){
+    return commandList[index] != undefined && commandList[index].length;
   }
   
-  function setCommandStartCallback(callback){
-    onCommandStart = callback;
+  function onComplete(index){
+    if(!validIndex(index)) return;
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      command.complete.call(command.object, command);
+    }
+  }
+  
+  function onUncomplete(index){
+    if(!validIndex(index)) return;
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      command.uncomplete.call(command.object, command);
+    }
+  }
+
+  function onStart(index){
+    if(!validIndex(index)) return;
+    
+    //We do it this way, because start calls may add new commands for other objects immediately.
+    var currentObjIndex = 0;
+    while(currentObjIndex < commandList[index].length){
+      var command = commandList[index][currentObjIndex];
+      command.snapshotData = command.snapshotFunction.call(command.object);
+      command.active = command.start.call(command.object, command);
+      currentObjIndex++;
+    }
+  }
+  
+  function onAction(index, percent){
+    if(!validIndex(index)) return;
+    
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      if(command.active)
+        command.action.call(command.object, percent, command);
+    }
+  }   
+  
+  function snapToGrid(index){
+    if(!validIndex(index)) return;
+    for(var i in commandList[index]){
+      var command = commandList[index][i];
+      command.object.snapToGrid();
+    }
   }
   
   function printState(){
     var print = "";
-    for(var i = 0; i < finishedCommand.length; i++)
-    {
-      var fc = finishedCommand[i];
-      if(finishedCommand[i] != undefined)
-        print += "(len: " + fc.length.toFixed(3) + ", cmd: " + fc.cmd + ")<br />";
-      else
-        print += finishedCommand[i];
+    print += "Needle: " + needle + "<br />";
+    for(var index in commandList){
+      if(validIndex(index)){
+        for(var i in commandList[index]){
+          var command = commandList[index][i];
+          print += "Slot: " + index + ", cmd: " + i + ":" + command.data + "<br />";
+        }
+      }
     }
-    print += timeRemaining.toFixed(3) + "/" + ((currCommand[0] == undefined)? "undefined" : currCommand[0].length) + " &#60;-- Progress<br />";
-    for(var i = 0; i < currCommand.length; i++){
-      var cc = currCommand[i];
-      if(currCommand[i] != undefined)
-        print += "(len: " + cc.length.toFixed(3) + ", cmd: " + cc.cmd + ")<br />";
-      else
-        print += currCommand[i];
-      
-    }
-    return print;
+    $("#console").html(print);
   }
-
+   
   function update(delta)
   {
-    //While there is time to process
-    while(delta != 0 && !isNaN(delta))
-    {
-      var forward = delta > 0;
-      if(!forward) {
-        lastStartedCommand = undefined;
-      }
-  
-      inHistory = false;
-      //Special code for waiting when we reach the end of the command list
-      if(forward && currCommand.length == 0){
-        inHistory = true;
-        if(finishedCommand.length == 0 || finishedCommand[finishedCommand.length-1].cmd != "wait"){
-          finishedCommand.push({cmd: "wait", data: null, length: 0});
-        }
-        finishedCommand[finishedCommand.length-1].length += delta;
-        return;
-      }
+    var forward = delta > 0;
+    
+    while(delta > 0 || (delta < 0 && needle > 0)){
+      needle = Math.max(0, needle);
+      var needleStart = needle;
+      var needleEnd = needleStart + delta;
       
-      if(!preserveFuture && !forward && currCommand.length >= 1 && currCommand[0].cmd == "wait"){
-        currCommand[0].length += delta;
-        timeRemaining += delta;
-        currCommand[0].length = THREE.Math.clamp(currCommand[0].length, 0, currCommand[0].length);
-      }
+      var startTime = needleStart / stepLength;
+      var startIndex = getIndex();
+      var percentComplete = startTime - startIndex;
+      var endIndex = Math.floor(needleEnd / stepLength);
       
-      var len = (currCommand[0] == undefined)? stepLength: currCommand[0].length;
-      
-      var timeCompleted = len - timeRemaining;
-      
-      //If we can complete the event with time to spare
-      if((forward && delta >= timeRemaining) || (!forward && delta + timeCompleted <= 0 ))
-      {
-        var timeChange = (forward) ? timeRemaining : -timeCompleted;
-        applyTimeToAction(timeChange, forward);
-        delta -= timeChange;
-                
-        if(forward){
-          var currCmd = currCommand.shift();
-          if(currCmd != undefined)
-          {
-            onCommandComplete(currCmd);
-            finishedCommand.push(currCmd);
-          }
-          
-        }
-        else
-        {
-          if(currCommand[0] != undefined)
-            onCommandUncomplete(currCommand[0]);
-          if(finishedCommand.length == 0)
-          {
-            //We have rewound all the way to the very beginning
-            break;
-          }
-          
-          var cmd = finishedCommand.pop();
-          if(!preserveFuture)
-          {
-            currCommand = [];
-          }
-          currCommand.splice(0, 0, cmd);
-        }          
-        //snap up the orientation and position. It gets off due to bad precision at really high mults.
-        body.rotation.x = closestMult(Math.PI/2, body.rotation.x);
-        body.rotation.y = closestMult(Math.PI/2, body.rotation.y);
-        body.rotation.z = closestMult(Math.PI/2, body.rotation.z);
-        body.position.x = closestMult(stepSize, body.position.x);
-        body.position.y = closestMult(stepSize, body.position.y);
-        body.position.z = closestMult(stepSize, body.position.z);
+      if(startIndex != endIndex){ //We need to do some catch up
+        var timeComplete = percentComplete * stepLength;
+        delta -= (forward)? stepLength - timeComplete : -timeComplete;
+        needle = (forward)? ((startIndex + 1) * stepLength) : (startIndex * stepLength) - 0.00000001;
         
-        timeRemaining = (forward) ? ((currCommand[0] == undefined)?stepLength:currCommand[0].length) : 0;
+        onAction(startIndex, (forward)?1:0 );
+
+        snapToGrid(startIndex);        
+        if(forward){
+          onComplete(startIndex);
+          onStart(startIndex + 1);
+        }else{
+          onUncomplete(startIndex);
+        }
+        continue;
       }else{
-        applyTimeToAction(delta, forward);
-        timeRemaining -= delta;
+        needle = needleEnd;
         delta = 0;
       }
-    }    
-  }
-  
-  function addCommand(command, data, length){
-    if(length == undefined) length = stepLength;
-    currCommand.push({cmd: command, data: data, length: length});
-  }
-
-  function applyTimeToAction(delta, forward){
-    if(actionFunction != undefined && currCommand[0] != undefined)
-    { 
-      if(forward && lastStartedCommand != currCommand[0])
-      { 
-        lastStartedCommand = currCommand[0];
-        var activated = onCommandStart(currCommand[0]);
-        currCommand[0].active = activated;
-      }
-        
-      actionFunction((currCommand[0].active) ? currCommand[0].cmd : "wait", delta, currCommand[0].data);
+      
+      var percent = needle / stepLength - Math.floor(needle / stepLength);
+      onAction(startIndex, percent);
     }
+    
+    //printState();
   }
   
-  function isInHistory()
-  {
-    return inHistory;
+  function addCommandAtIndex(commandData, index){
+    if(!verifyCommand(commandData)){
+      return;
+    }
+    if(commandList[index] == undefined)
+      commandList[index] = [];
+    
+    //This is probably temporary code, but the grid can't handle two commands at once, yet.
+    var alreadyHasACommandInSlot = false;
+    for(var i in commandList[index]){
+      if(commandList[index][i].object == commandData.object){
+        alreadyHasACommandInSlot = true;
+      }
+    }
+    if(!alreadyHasACommandInSlot)
+      commandList[index].push(commandData);
+  }
+  
+  function addCommand(commandData){
+    addCommandAtIndex(commandData, Math.ceil(needle / stepLength));
+  }
+  
+  function verifyCommand(commandData){
+    var verified = true;
+    var requiredFunctions = ["start", "action", "snapshotFunction", "complete", "uncomplete"];
+    for(var i in requiredFunctions){
+      if(typeof commandData[requiredFunctions[i]] != 'function'){
+        console.log("Error: command missing " + requiredFunctions[i] + " function.");
+        verified = false;
+      }
+    }
+    if(typeof commandData.object == "undefined"){
+      console.log("Error: command missing object data.");
+      verified = false;
+    }
+    
+    return verified;
   }
   
   return {
     update: update,
     addCommand: addCommand,
-    onCommandComplete: onCommandComplete,
-    setCommandCompleteCallback: setCommandCompleteCallback,
-    setCommandUncompleteCallback: setCommandUncompleteCallback,
-    setCommandStartCallback: setCommandStartCallback,
-    printState: printState,
-    isInHistory: isInHistory
+    addCommandAtIndex: addCommandAtIndex
   }
 };
+
+TIME = new Time();

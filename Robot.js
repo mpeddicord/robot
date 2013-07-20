@@ -7,101 +7,6 @@ function Robot(data) {
   this.body.children[0].userData.gameObject = this;
   
   this.setPosition(data.pos);
-  
-  this.time = new Time(actions, this.body, true);
-  
-  function actions(command, delta)
-  {  
-    switch(command){
-      case "forward":
-        self.body.translateX(stepSize * delta * (1 / stepLength));
-        break
-      case "back":
-        self.body.translateX(-stepSize * delta * (1 / stepLength));
-        break;
-      case "left":
-        self.body.rotateOnAxis(new THREE.Vector3(0,1,0), (Math.PI / 2) * delta * (1 / stepLength));
-        break;
-      case "right":
-        self.body.rotateOnAxis(new THREE.Vector3(0,1,0), (-Math.PI / 2) * delta * (1 / stepLength));
-        break;
-      case "wait":
-        break;
-    }
-  }
-     
-  this.time.setCommandCompleteCallback(function(command){
-  });
-  
-  this.time.setCommandUncompleteCallback(function(command){
-    switch(command.cmd){
-      case "forward":
-        if(command.active)
-        {
-          var newPos = new THREE.Vector3();
-          newPos.copy(self.body.position);
-          var v1 = new THREE.Vector3( 1, 0, 0 );
-          v1.applyEuler( self.body.rotation, self.body.eulerOrder );
-          newPos.add( v1.multiplyScalar( stepSize ) );
-          moveObjInGrid(self, 
-              newPos.x, 
-              newPos.y, 
-              newPos.z, 
-              self.body.position.x, 
-              self.body.position.y,
-              self.body.position.z);
-        }
-      break;
-    }
-  });
-  
-  this.time.setCommandStartCallback(function(command){
-    switch(command.cmd){
-      case "forward":
-        var newPos = new THREE.Vector3();
-        newPos.copy(self.body.position);
-        var v1 = new THREE.Vector3( 1, 0, 0 );
-        v1.applyEuler( self.body.rotation, self.body.eulerOrder );
-        newPos.add( v1.multiplyScalar( stepSize ) );
-        
-        var objArray = getObjArray(newPos.x, newPos.y, newPos.z);
-        
-        var goTime = true;
-        
-        if(objArray.length == 0){
-          goTime = true;
-        }else{
-          var objList = new Array();
-          
-          var direction = new THREE.Vector3();
-          direction.subVectors(newPos, self.body.position);
-          
-          var mass = accumulateMass(objArray[0], direction, objList);
-          goTime = mass <= 2;
-          if(goTime)
-          {
-            direction.normalize();
-            for(var objIndex in objList){
-              objList[objIndex].push(new THREE.Vector3( direction.x, direction.y, direction.z ));
-            }  
-          }
-        }
-        if(goTime){
-          moveObjInGrid(self, 
-              self.body.position.x, 
-              self.body.position.y, 
-              self.body.position.z, 
-              newPos.x, 
-              newPos.y,
-              newPos.z);
-        }
-        
-        return goTime;
-        break;
-    }
-    
-    return true;
-  });
 };
 
 Robot.prototype = new DynamicObjectBase();
@@ -109,25 +14,134 @@ Robot.prototype.constructor = Robot;
 
 Robot.prototype.moveForward = function(){
   console.log("Forward");
-  this.time.addCommand("forward");
+  TIME.addCommand({ action: this.actions, 
+                    data: "forward", 
+                    object: this, 
+                    start: this.startForward, 
+                    complete: function(){}, 
+                    uncomplete: this.uncompleteForward, 
+                    snapshotFunction:this.takeSnapshot});
 }
   
 Robot.prototype.moveBack = function(){
   console.log("Back");
-  this.time.addCommand("back");
 }
   
 Robot.prototype.turnLeft = function(){
   console.log("Left");
-  this.time.addCommand("left");
+  TIME.addCommand({ action: this.actions, 
+                    data: "left", 
+                    object: this, 
+                    start: function(){ return SUCCESS; }, 
+                    complete: function(){}, 
+                    uncomplete: function(){}, 
+                    snapshotFunction:this.takeSnapshot});
 }
 
 Robot.prototype.turnRight = function(){
   console.log("Right");
-  this.time.addCommand("right");
+  TIME.addCommand({ action: this.actions, 
+                    data: "right", 
+                    object: this, 
+                    start: function(){ return SUCCESS; }, 
+                    complete: function(){}, 
+                    uncomplete: function(){}, 
+                    snapshotFunction:this.takeSnapshot});
 }
   
 Robot.prototype.wait = function(){
   console.log("Wait");
-  this.time.addCommand("wait");
+}
+
+Robot.prototype.actions = function(time, commandObj)
+{  
+  switch(commandObj.data){
+    case "forward":
+    case "back":
+      var v1 = new THREE.Vector3( 1, 0, 0 );
+      if(commandObj.data == "back") v1.x *= -1;
+      var basePosition = new THREE.Vector3();
+      basePosition.copy(commandObj.snapshotData.position);
+      v1.applyEuler( this.body.rotation, this.body.eulerOrder );
+      basePosition.add( v1.multiplyScalar( time * stepSize ) );
+      this.body.position.copy(basePosition);
+      break;
+    case "left":
+    case "right":
+      var mult = (commandObj.data == "right")? -1 : 1;
+      var baseRotation = new THREE.Vector3();
+      baseRotation.copy(commandObj.snapshotData.rotation);
+      var q1 = new THREE.Quaternion();
+      var q2 = new THREE.Quaternion();
+      var axis = new THREE.Vector3(0,1,0);
+      var angle = mult * (Math.PI / 2) * time;
+      q1.setFromAxisAngle( axis, angle );
+      q2.setFromEuler( baseRotation, this.body.eulerOrder );
+      q2.multiply( q1 );
+      this.body.rotation.setEulerFromQuaternion( q2, this.body.eulerOrder );
+      break;
+    case "wait":
+      break;
+  }
+}
+
+Robot.prototype.uncompleteForward = function(commandObj){
+  if(commandObj.active)
+  {
+    var newPos = new THREE.Vector3();
+    newPos.copy(this.body.position);
+    var v1 = new THREE.Vector3( 1, 0, 0 );
+    v1.applyEuler( this.body.rotation, this.body.eulerOrder );
+    newPos.add( v1.multiplyScalar( stepSize ) );
+    moveObjInGrid(this, 
+        newPos.x, 
+        newPos.y, 
+        newPos.z, 
+        this.body.position.x, 
+        this.body.position.y,
+        this.body.position.z);
+  }
+}
+
+
+Robot.prototype.startForward = function(commandObj){
+  var newPos = new THREE.Vector3();
+  newPos.copy(this.body.position);
+  var v1 = new THREE.Vector3( 1, 0, 0 );
+  v1.applyEuler( this.body.rotation, this.body.eulerOrder );
+  newPos.add( v1.multiplyScalar( stepSize ) );
+  
+  var objArray = getObjArray(newPos.x, newPos.y, newPos.z);
+  
+  var goTime = true;
+  
+  if(objArray.length == 0){
+    goTime = true;
+  }else{
+    var objList = new Array();
+    
+    var direction = new THREE.Vector3();
+    direction.subVectors(newPos, this.body.position);
+    
+    var mass = accumulateMass(objArray[0], direction, objList);
+    goTime = mass <= 2;
+    if(goTime)
+    {
+      direction.normalize();
+      for(var objIndex in objList){
+        objList[objIndex].push(new THREE.Vector3( direction.x, direction.y, direction.z ));
+      }  
+    }
+  }
+  if(goTime){
+    moveObjInGrid(this, 
+        this.body.position.x, 
+        this.body.position.y, 
+        this.body.position.z, 
+        newPos.x, 
+        newPos.y,
+        newPos.z);
+  }
+  
+  return goTime;
 }
