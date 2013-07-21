@@ -3,7 +3,9 @@ var stepSize = 50;
 var gridSize = 22;
 var EPSILON = 0.00000001;
 var offset = (stepSize * gridSize) / 2;
+
 var SUCCESS = true;
+var FAILURE = false;
 
 var markersDirty = true;
 var showMarkers = false;
@@ -111,11 +113,15 @@ function getObjArray(x, y, z){
 }
 
 function moveObjInGrid(obj, oldPos, newPos){
-  markersDirty = true;
-
-  var oldArray = getObjArray(oldPos.x, oldPos.y, oldPos.z);
   var newArray = getObjArray(newPos.x, newPos.y, newPos.z);
   
+  var spaceOccupied = (newArray.length) > 1 || (newArray.length == 1 && newArray[0] != obj);
+  if (spaceOccupied)
+    return FAILURE;
+    
+  markersDirty = true;
+  
+  var oldArray = getObjArray(oldPos.x, oldPos.y, oldPos.z);
   var index = oldArray.indexOf(obj);
   if(index == -1){
     console.log("OH SHIT! WE DONT HAVE AN INDEX!");
@@ -123,6 +129,7 @@ function moveObjInGrid(obj, oldPos, newPos){
   
   newArray.push(oldArray[index]);
   oldArray.splice(index, 1);
+  return SUCCESS;
 }
 
 function addObjToGrid(obj, pos){

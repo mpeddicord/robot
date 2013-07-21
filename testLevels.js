@@ -36,23 +36,77 @@ testLevels['default'] = function(world)
 
 testLevels['collide'] = function(world)
 {
-  var numRobots = 2;
-  for(var i = 0; i < numRobots; i++)
-  {
-    robot.push(world.addRobotToWorld(new Robot({
-      pos : {
-        x: -3, 
-        y: 0, 
-        z: i*2
-      },
-      blockGeo:robotGeo, 
-      blockMaterials:robotMaterials
-    })));
-  }
+  var robots = [];
   
+  robot.push(
+    world.addRobotToWorld(
+      new Robot({
+        pos : {
+          x: -3, 
+          y: 0, 
+          z: 0
+        },
+        blockGeo:robotGeo, 
+        blockMaterials:robotMaterials
+      })
+    )
+  );
+  
+  robot.push(
+    world.addRobotToWorld(
+      new Robot({
+        pos : {
+          x: -3, 
+          y: 0, 
+          z: 2
+        },
+        blockGeo:robotGeo, 
+        blockMaterials:robotMaterials
+      })
+    )
+  );
+    
   TIME.addCommandAtIndex(robot[0].turnRightCommand(), 1);
   TIME.addCommandAtIndex(robot[0].forwardCommand(), 2);
+  //TIME.addCommandAtIndex(robot[0].forwardCommand(), 3);
   
   TIME.addCommandAtIndex(robot[1].turnLeftCommand(), 1);
   TIME.addCommandAtIndex(robot[1].forwardCommand(), 2);
+  //TIME.addCommandAtIndex(robot[1].forwardCommand(), 3);
+  
+  robot.push(
+    world.addRobotToWorld(
+      new Robot({
+        pos : {
+          x: 0, 
+          y: 0, 
+          z: 0
+        },
+        blockGeo:robotGeo, 
+        blockMaterials:robotMaterials
+      })
+    )
+  );
+  
+  robot.push(
+    world.addRobotToWorld(
+      new Robot({
+        pos : {
+          x: 0, 
+          y: 0, 
+          z: 1
+        },
+        blockGeo:robotGeo, 
+        blockMaterials:robotMaterials
+      })
+    )
+  );
+    
+  TIME.addCommandAtIndex(robot[2].turnRightCommand(), 1);
+  TIME.addCommandAtIndex(robot[2].forwardCommand(), 2);
+  //TIME.addCommandAtIndex(robot[0].forwardCommand(), 3);
+  
+  TIME.addCommandAtIndex(robot[3].turnLeftCommand(), 1);
+  TIME.addCommandAtIndex(robot[3].forwardCommand(), 2);
+  //TIME.addCommandAtIndex(robot[1].forwardCommand(), 3);
 };

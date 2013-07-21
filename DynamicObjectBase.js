@@ -49,18 +49,26 @@ DynamicObjectBase.prototype.snapToGrid = function(){
 }
 
 DynamicObjectBase.prototype.setPosition = function(pos) {
-  this.body.position.x = pos.x;
-  this.body.position.y = pos.y;
-  this.body.position.z = pos.z;
-
-  var newPos = this.snapPosToGrid(this.body.position);
+  var newPos = this.snapPosToGrid(pos);
   
-  if (this.gridPos == undefined)
+  var result = FAILURE;
+  if (this.gridPos == undefined) {
     addObjToGrid(this, newPos);
-  else
-    moveObjInGrid(this, this.gridPos, newPos);
-  
-  this.gridPos = newPos;
+    result = SUCCESS;
+  }
+  else {
+    result = moveObjInGrid(this, this.gridPos, newPos);
+  }
+
+  if (result == SUCCESS) {
+    this.body.position.x = pos.x;
+    this.body.position.y = pos.y;
+    this.body.position.z = pos.z;
+
+    this.gridPos = newPos;
+  }
+    
+  return result;
 }
 
 DynamicObjectBase.prototype.pushAction = function(time, commandObj){
@@ -74,7 +82,7 @@ DynamicObjectBase.prototype.pushAction = function(time, commandObj){
   dir.multiplyScalar( time * stepSize);
   basePosition.add( dir );
   
-  this.setPosition(basePosition);
+  return this.setPosition(basePosition);
 }
 
 DynamicObjectBase.prototype.pushUncomplete = function(commandObj){

@@ -6,6 +6,10 @@ function Robot(data) {
   this.body = THREE.SceneUtils.createMultiMaterialObject( new THREE.OctahedronGeometry(25), this.personalColor );  
   this.body.children[0].userData.gameObject = this;
   
+  var front = new THREE.Mesh(new THREE.OctahedronGeometry(10), this.personalColor[0]);
+  front.position.x = 18;
+  this.body.add(front);
+  
   this.setPosition(data.pos);
 };
 
@@ -14,8 +18,17 @@ Robot.prototype.constructor = Robot;
 
 Robot.prototype.forwardCommand = function(){
   return { 
-    action: this.actions, 
-    data: "forward", 
+    action: function(time, commandObj) {
+      var v1 = new THREE.Vector3( 1, 0, 0 );
+      if(commandObj.data == "back") v1.x *= -1;
+      var basePosition = new THREE.Vector3();
+      basePosition.copy(commandObj.snapshotData.position);
+      v1.applyEuler( this.body.rotation );
+      basePosition.add( v1.multiplyScalar( time * stepSize ) );
+      this.setPosition(basePosition);
+    },
+      
+    data: "", 
     object: this, 
     start: this.startForward, 
     complete: function(){}, 
@@ -26,7 +39,7 @@ Robot.prototype.forwardCommand = function(){
 
 Robot.prototype.turnLeftCommand = function() {
   return { 
-    action: this.actions, 
+    action: this.actionLeftRight, 
     data: "left", 
     object: this, 
     start: function(){ return SUCCESS; }, 
@@ -38,7 +51,7 @@ Robot.prototype.turnLeftCommand = function() {
 
 Robot.prototype.turnRightCommand = function() {
   return { 
-    action: this.actions, 
+    action: this.actionLeftRight, 
     data: "right", 
     object: this, 
     start: function(){ return SUCCESS; }, 
@@ -71,35 +84,17 @@ Robot.prototype.wait = function(){
   console.log("Wait");
 }
 
-Robot.prototype.actions = function(time, commandObj)
-{  
-  switch(commandObj.data){
-    case "forward":
-    case "back":
-      var v1 = new THREE.Vector3( 1, 0, 0 );
-      if(commandObj.data == "back") v1.x *= -1;
-      var basePosition = new THREE.Vector3();
-      basePosition.copy(commandObj.snapshotData.position);
-      v1.applyEuler( this.body.rotation );
-      basePosition.add( v1.multiplyScalar( time * stepSize ) );
-      this.setPosition(basePosition);
-      break;
-    case "left":
-    case "right":
-      var mult = (commandObj.data == "right")? -1 : 1;
-      var baseRotation = commandObj.snapshotData.rotation.clone();
-      var q1 = new THREE.Quaternion();
-      var q2 = new THREE.Quaternion();
-      var axis = new THREE.Vector3(0,1,0);
-      var angle = mult * (Math.PI / 2) * time;
-      q1.setFromAxisAngle( axis, angle );
-      q2.setFromEuler( baseRotation );
-      q2.multiply( q1 );
-      this.body.rotation.setFromQuaternion( q2 );
-      break;
-    case "wait":
-      break;
-  }
+Robot.prototype.actionLeftRight = function(time, commandObj) {
+    var mult = (commandObj.data == "right")? -1 : 1;
+    var baseRotation = commandObj.snapshotData.rotation.clone();
+    var q1 = new THREE.Quaternion();
+    var q2 = new THREE.Quaternion();
+    var axis = new THREE.Vector3(0,1,0);
+    var angle = mult * (Math.PI / 2) * time;
+    q1.setFromAxisAngle( axis, angle );
+    q2.setFromEuler( baseRotation );
+    q2.multiply( q1 );
+    this.body.rotation.setFromQuaternion( q2 );
 }
 
 Robot.prototype.uncompleteForward = function(commandObj){
