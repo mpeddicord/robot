@@ -72,7 +72,6 @@ function Time(){
   
   function printState(){
     var print = "";
-    print += "Needle: " + needle + "<br />";
     for(var index in commandList){
       if(validIndex(index)){
         for(var i in commandList[index]){
