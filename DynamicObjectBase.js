@@ -105,6 +105,8 @@ DynamicObjectBase.prototype.pushStart = function(commandObj){
   newPos.copy(this.body.position);
   newPos.add(direction);
   
+  
+  
   return SUCCESS;
 }
 

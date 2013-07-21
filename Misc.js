@@ -11,6 +11,8 @@ var markersDirty = true;
 var showMarkers = false;
 var markers = [];
 
+var allObjects = [];
+
 var scene = new THREE.Scene();
 
 function marker(__x, __y, __z, color){
