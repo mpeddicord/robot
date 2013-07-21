@@ -21,6 +21,7 @@ function Time(){
       var command = commandList[index][i];
       command.complete.call(command.object, command);
     }
+    
   }
   
   function onUncomplete(index){
@@ -130,8 +131,15 @@ function Time(){
     }
     if(commandList[index] == undefined)
       commandList[index] = [];
+      
+    var previousAction = index <= getIndex();
+    var time = needle - (index * stepLength);
     
+	if(previousAction) update(-time);
+	
     commandList[index].push(commandData);
+    
+    if(previousAction) update(time);
   }
   
   function addCommand(commandData){
