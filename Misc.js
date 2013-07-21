@@ -12,7 +12,7 @@ var markers = [];
 var scene = new THREE.Scene();
 
 function marker(__x, __y, __z, color){
-  blockGeo = new THREE.CubeGeometry( stepSize/4, stepSize/4, stepSize/4 );
+  blockGeo = new THREE.CubeGeometry( stepSize/6, stepSize/6, stepSize/6 );
   personalColor = [
       new THREE.MeshLambertMaterial( { color: color, shading: THREE.FlatShading, overdraw: false} ),
       new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 1, transparent: true, opacity:1} )
@@ -78,14 +78,17 @@ function updateMarkers() {
     for (var y = 0; y < gridSize; y++) {
       for (var z = 0; z < gridSize; z++) {
         if (collisionGrid[x][y][z].length > 0){
-          var isBot = collisionGrid[x][y][z][0].turnLeft != undefined;
-          var color = 0x00ff00;
-          if(isBot){
-            color = 0xff0000;
-            //printVector(collisionGrid[x][y][z][0].body.position, "Bot location");
-            //console.log(x+","+y+","+z);
+          for (var i in collisionGrid[x][y][z]) {
+            var obj = collisionGrid[x][y][z][i];
+            var isBot = obj.turnLeft != undefined;
+            var color = 0x00ff00;
+            if(isBot){
+              color = 0xff0000;
+              //printVector(collisionGrid[x][y][z][0].body.position, "Bot location");
+              //console.log(x+","+y+","+z);
+            }
+            new marker(x*50, (y*50) + 20 + (i*10), z*50, color);
           }
-          new marker(x*50, (y*50) + 50, z*50, color);
         }
       }
     }
