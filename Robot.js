@@ -12,15 +12,45 @@ function Robot(data) {
 Robot.prototype = new DynamicObjectBase();
 Robot.prototype.constructor = Robot;
 
+Robot.prototype.forwardCommand = function(){
+  return { 
+    action: this.actions, 
+    data: "forward", 
+    object: this, 
+    start: this.startForward, 
+    complete: function(){}, 
+    uncomplete: this.uncompleteForward, 
+    snapshotFunction:this.takeSnapshot
+  }
+};
+
+Robot.prototype.turnLeftCommand = function() {
+  return { 
+    action: this.actions, 
+    data: "left", 
+    object: this, 
+    start: function(){ return SUCCESS; }, 
+    complete: function(){}, 
+    uncomplete: function(){}, 
+    snapshotFunction:this.takeSnapshot
+  };
+};
+
+Robot.prototype.turnRightCommand = function() {
+  return { 
+    action: this.actions, 
+    data: "right", 
+    object: this, 
+    start: function(){ return SUCCESS; }, 
+    complete: function(){}, 
+    uncomplete: function(){}, 
+    snapshotFunction:this.takeSnapshot
+  };
+}
+
 Robot.prototype.moveForward = function(){
   console.log("Forward");
-  TIME.addCommand({ action: this.actions, 
-                    data: "forward", 
-                    object: this, 
-                    start: this.startForward, 
-                    complete: function(){}, 
-                    uncomplete: this.uncompleteForward, 
-                    snapshotFunction:this.takeSnapshot});
+  TIME.addCommand(this.forwardCommand());
 }
   
 Robot.prototype.moveBack = function(){
@@ -29,24 +59,12 @@ Robot.prototype.moveBack = function(){
   
 Robot.prototype.turnLeft = function(){
   console.log("Left");
-  TIME.addCommand({ action: this.actions, 
-                    data: "left", 
-                    object: this, 
-                    start: function(){ return SUCCESS; }, 
-                    complete: function(){}, 
-                    uncomplete: function(){}, 
-                    snapshotFunction:this.takeSnapshot});
+  TIME.addCommand(this.turnLeftCommand());
 }
 
 Robot.prototype.turnRight = function(){
   console.log("Right");
-  TIME.addCommand({ action: this.actions, 
-                    data: "right", 
-                    object: this, 
-                    start: function(){ return SUCCESS; }, 
-                    complete: function(){}, 
-                    uncomplete: function(){}, 
-                    snapshotFunction:this.takeSnapshot});
+  TIME.addCommand(this.turnRightCommand());
 }
   
 Robot.prototype.wait = function(){

@@ -106,6 +106,7 @@ function World(scene) {
     robots.push(r);
     scene.add( r.body );
     selectRobot(robots[0]);
+    return r;
   };
   
   function blocksIntersect(pos1, pos2)

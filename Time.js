@@ -121,7 +121,7 @@ function Time(){
       onAction(startIndex, percent);
     }
     
-    //printState();
+    printState();
   }
   
   function addCommandAtIndex(commandData, index){

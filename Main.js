@@ -1,3 +1,10 @@
+$.urlParam = function(name){
+  var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
+  if (results == null)
+    return undefined;
+  return results[1];
+}
+
 function main(){
   var container, stats;
   var camera, projector, renderer;
@@ -68,7 +75,6 @@ function main(){
 
     // Cubes
     gridWorld = new World(scene);
-    loadLevel(gridWorld);
 
     // Lights
     var ambientLight = new THREE.AmbientLight( 0.75 * 0x10 );
@@ -116,8 +122,39 @@ function main(){
     window.onZoom(z);
 
     window.addEventListener( 'resize', onWindowResize, false );
+    
+    
+    var level = $.urlParam('level');
+    if (level != undefined) {
+      level = 'test';
+      
+      $.ajax({
+        url: 'levels/'+level+'.js',
+        dataType: "script",
+        success: function() { 
+          loadLevel(gridWorld); }
+      });     
+    }
+    
+    //Load Level
+    var level = $.urlParam('level');
+    if (level != undefined) {      
+      $.ajax({
+        url: 'levels/'+level+'.js',
+        dataType: "script",
+        success: function() { 
+          loadLevel(gridWorld); }
+      });     
+    }
+    else {
+      var testLevelId = $.urlParam('test');
+      if (testLevelId == undefined)
+        testLevelId = 'default';
+
+      testLevels[testLevelId](gridWorld);
+    }
   }
-          
+            
   function positionRenderer() {
     renderer.domElement.style.position = 'absolute';
     containerLeft = Math.floor((window.innerWidth - containerWidth) * 0.5);
