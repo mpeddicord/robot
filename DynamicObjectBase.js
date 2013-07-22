@@ -72,6 +72,9 @@ DynamicObjectBase.prototype.setPosition = function(pos) {
 }
 
 DynamicObjectBase.prototype.pushAction = function(time, commandObj){
+  if(commandObj.stopped)
+    return FAILURE;
+
   var dir = new THREE.Vector3();
   dir.copy(commandObj.data);
   
@@ -105,22 +108,23 @@ DynamicObjectBase.prototype.pushStart = function(commandObj){
   newPos.copy(this.body.position);
   newPos.add(direction);
   
-  
-  
   return SUCCESS;
 }
 
 DynamicObjectBase.prototype.push = function(vector){
   vector.set(closestMult(1, vector.x), closestMult(1, vector.y), closestMult(1, vector.z));
   printVector(vector);
-  TIME.addCommand({ action: this.pushAction, 
+  var pushCmd = { action: this.pushAction, 
                     data: vector, 
                     object: this, 
                     start: this.pushStart, 
                     complete: function(){}, 
                     uncomplete: this.pushUncomplete, 
                     snapshotFunction:this.takeSnapshot,
-                    passive: true });
+                    passive: true,
+                    stopped: false };
+  TIME.addCommand(pushCmd);
+  return pushCmd;
 }
 
 DynamicObjectBase.prototype.takeSnapshot = function(){
