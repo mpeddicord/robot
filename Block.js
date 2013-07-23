@@ -8,5 +8,5 @@ function Block(data) {
   this.setPosition(data.pos);
 };
 
-Block.prototype = new DynamicObjectBase();
+Block.prototype = new DynamicObjectBase;
 Block.prototype.constructor = Block;

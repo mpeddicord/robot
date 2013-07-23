@@ -13,7 +13,7 @@ function Robot(data) {
   this.setPosition(data.pos);
 };
 
-Robot.prototype = new DynamicObjectBase();
+Robot.prototype = new DynamicObjectBase;
 Robot.prototype.constructor = Robot;
 
 Robot.prototype.forwardCommand = function(){
@@ -25,7 +25,13 @@ Robot.prototype.forwardCommand = function(){
       basePosition.copy(commandObj.snapshotData.position);
       v1.applyEuler( this.body.rotation );
       basePosition.add( v1.multiplyScalar( time * stepSize ) );
-      this.setPosition(basePosition);
+      if (this.setPosition(basePosition) == FAILURE) {
+        if (false && commandObj["pushCmds"] != undefined) {
+          for(var i=0; i < commandObj["pushCmds"].length; ++i) {
+            commandObj.pushCmds[i].stopped = true;
+          }
+        }
+      }
     },
       
     data: "", 
@@ -136,9 +142,11 @@ Robot.prototype.startForward = function(commandObj){
     goTime = mass <= 2;
     if(goTime)
     {
+      commandObj["pushCmds"] = [];
+        
       direction.normalize();
       for(var objIndex in objList){
-        objList[objIndex].push(new THREE.Vector3( direction.x, direction.y, direction.z ));
+        commandObj["pushCmds"].push( objList[objIndex].push(new THREE.Vector3( direction.x, direction.y, direction.z )) );
       }  
     }
   }
