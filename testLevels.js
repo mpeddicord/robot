@@ -129,6 +129,24 @@ testLevels['stack'] = function(world)
     world.addBlockToWorld(0,3,0);
 };
 
+testLevels['stacks'] = function(world)
+{
+  robot.push(world.addRobotToWorld(new Robot({
+      pos : {
+        x: 0, 
+        y: 0, 
+        z: 0
+      },
+      blockGeo:robotGeo, 
+      blockMaterials:robotMaterials
+    })));
+    
+  for(var i = 0; i < 100; i++){
+    world.addBlockToWorld(Math.floor(Math.random() * 20) - 10,0,Math.floor(Math.random() * 20) - 10);
+    world.addBlockToWorld(Math.floor(Math.random() * 20) - 10,1,Math.floor(Math.random() * 20) - 10);
+  }
+};
+
 testLevels['dance'] = function(world)
 {
   var numRobots = 4;
