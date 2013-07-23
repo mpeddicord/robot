@@ -13,7 +13,7 @@ function Robot(data) {
   this.setPosition(data.pos);
 };
 
-Robot.prototype = new DynamicObjectBase();
+Robot.prototype = new DynamicObjectBase;
 Robot.prototype.constructor = Robot;
 
 Robot.prototype.forwardCommand = function(){

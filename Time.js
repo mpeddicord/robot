@@ -107,6 +107,7 @@ function Time(){
         snapToGrid(startIndex);        
         if(forward){
           onComplete(startIndex);
+          PHYSICS.update(startIndex + 1);
           onStart(startIndex + 1);
         }else{
           onUncomplete(startIndex);
@@ -128,21 +129,27 @@ function Time(){
     if(!verifyCommand(commandData)){
       return;
     }
+    
     if(commandList[index] == undefined)
       commandList[index] = [];
       
     var previousAction = index <= getIndex();
     var time = needle - (index * stepLength);
     
-	if(previousAction) update(-time);
+    if(previousAction) 
+      update(-time);
 	
     commandList[index].push(commandData);
     
-    if(previousAction) update(time);
+    if(previousAction) 
+      update(time);
+      
+    return commandData;
   }
   
   function addCommand(commandData){
     addCommandAtIndex(commandData, Math.ceil(needle / stepLength));
+    return commandData;
   }
   
   function verifyCommand(commandData){

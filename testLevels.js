@@ -7,7 +7,6 @@ var robotMaterials = [
   new THREE.MeshBasicMaterial( { color: 0x000000, wireframe : true, wireframeLinewidth: 4, transparent: true, opacity:1} )
 ];
 
-
 testLevels['default'] = function(world)
 {
   world.addBlockToWorld(1,0,-1);
@@ -33,6 +32,8 @@ testLevels['default'] = function(world)
   
   world.createWallRect(-11, -11, 21, 21);
 }
+
+testLevels['empty'] = function(world) {}
 
 testLevels['collide'] = function(world)
 {

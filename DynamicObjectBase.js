@@ -1,8 +1,9 @@
 DynamicObjectBase = function(data) {
-  //this.dataUnusedProperties = [];
-  
   if (data == undefined)
-    data = { pos:{x:0,y:0,z:0} };
+    return;
+    
+  if (data.pos == undefined)
+    data.pos = {x:0,y:0,z:0};
     
   data.pos.x *= stepSize;
   data.pos.y *= stepSize;
@@ -29,6 +30,8 @@ DynamicObjectBase = function(data) {
   this.body = undefined;
   this.data = data;
   this.gridPos = undefined;
+  
+  allObjects.push(this);
 }
 
 DynamicObjectBase.prototype.snapPosToGrid = function(p){
@@ -111,20 +114,22 @@ DynamicObjectBase.prototype.pushStart = function(commandObj){
   return SUCCESS;
 }
 
-DynamicObjectBase.prototype.push = function(vector){
+DynamicObjectBase.prototype.pushCommand = function(vector) {
   vector.set(closestMult(1, vector.x), closestMult(1, vector.y), closestMult(1, vector.z));
   printVector(vector);
-  var pushCmd = { action: this.pushAction, 
-                    data: vector, 
-                    object: this, 
-                    start: this.pushStart, 
-                    complete: function(){}, 
-                    uncomplete: this.pushUncomplete, 
-                    snapshotFunction:this.takeSnapshot,
-                    passive: true,
-                    stopped: false };
-  TIME.addCommand(pushCmd);
-  return pushCmd;
+  return { action: this.pushAction, 
+            data: vector, 
+            object: this, 
+            start: this.pushStart, 
+            complete: function(){}, 
+            uncomplete: this.pushUncomplete, 
+            snapshotFunction:this.takeSnapshot,
+            passive: true,
+            stopped: false };
+}
+
+DynamicObjectBase.prototype.push = function(vector){
+  return TIME.addCommand(this.pushCommand(vector));
 }
 
 DynamicObjectBase.prototype.takeSnapshot = function(){
