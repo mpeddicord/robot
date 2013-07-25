@@ -28,6 +28,22 @@ function getObjArray(x, y, z){
   }
 }
 
+function spaceOccupiedVoxelId(pos, curObj) {
+  return spaceOccupied(
+    {
+      x:pos.x*stepSize,
+      y:pos.y*stepSize,
+      z:pos.z*stepSize
+    },
+    curObj
+  );
+}
+
+function spaceOccupied(pos, curObj) {
+  var objects = getObjArray(pos.x, pos.y, pos.z);
+  return (objects.length) > 0 || (curObj != objects[0]);
+}
+
 function moveObjInGrid(obj, oldPos, newPos){
   var newArray = getObjArray(newPos.x, newPos.y, newPos.z);
   

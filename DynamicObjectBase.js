@@ -122,7 +122,7 @@ DynamicObjectBase.prototype.pushStart = function(commandObj){
 
 DynamicObjectBase.prototype.pushCommand = function(vector) {
   vector.set(closestMult(1, vector.x), closestMult(1, vector.y), closestMult(1, vector.z));
-  printVector(vector);
+  //printVector(vector);
   return { action: this.pushAction, 
             data: vector, 
             object: this, 

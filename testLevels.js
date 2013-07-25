@@ -37,7 +37,7 @@ testLevels['empty'] = function(world) {}
 
 testLevels['collide'] = function(world)
 {
-  var robots = [];
+  var robot = [];
   
   robot.push(
     world.addRobotToWorld(
@@ -114,7 +114,7 @@ testLevels['collide'] = function(world)
 
 testLevels['stack'] = function(world)
 {
-  robot.push(world.addRobotToWorld(new Robot({
+  world.addRobotToWorld(new Robot({
       pos : {
         x: 0, 
         y: 0, 
@@ -122,16 +122,16 @@ testLevels['stack'] = function(world)
       },
       blockGeo:robotGeo, 
       blockMaterials:robotMaterials
-    })));
+  }));
     
-    world.addBlockToWorld(0,1,0);
-    world.addBlockToWorld(0,2,0);
-    world.addBlockToWorld(0,3,0);
+  world.addBlockToWorld(0,1,0);
+  world.addBlockToWorld(0,2,0);
+  world.addBlockToWorld(0,3,0);
 };
 
 testLevels['stacks'] = function(world)
 {
-  robot.push(world.addRobotToWorld(new Robot({
+  world.addRobotToWorld(new Robot({
       pos : {
         x: 0, 
         y: 0, 
@@ -139,16 +139,27 @@ testLevels['stacks'] = function(world)
       },
       blockGeo:robotGeo, 
       blockMaterials:robotMaterials
-    })));
-    
-  for(var i = 0; i < 100; i++){
-    world.addBlockToWorld(Math.floor(Math.random() * 20) - 10,0,Math.floor(Math.random() * 20) - 10);
-    world.addBlockToWorld(Math.floor(Math.random() * 20) - 10,1,Math.floor(Math.random() * 20) - 10);
+  }));
+  
+  var blocks = 0;
+  for(var y = 0; y < 11; y++){  
+    for(var i = 0; i < 100; i++){
+      var x = Math.floor(Math.random() * 20) - 10;
+      var z = Math.floor(Math.random() * 20) - 10;
+      
+      if (!spaceOccupiedVoxelId({x:x,y:y,z:z}))  {
+        ++blocks;
+        world.addBlockToWorld(x, y, z);
+      }
+    }
   }
+  
+  console.log(blocks + " blocks");
 };
 
 testLevels['dance'] = function(world)
 {
+  var robot = [];
   world.createWallRect(-11, -11, 21, 21);
   
   var numRobots = 4;

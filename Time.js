@@ -80,6 +80,8 @@ function Time(){
   }
   
   function printState(){
+    return;
+    
     var print = "";
     for(var index in commandList){
       if(validIndex(index)){
