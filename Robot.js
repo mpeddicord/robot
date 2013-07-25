@@ -79,13 +79,7 @@ Robot.prototype.moveForward = function(){
 
 Robot.prototype.moveForwardHistory = function(){
   console.log("Forward");
-  TIME.addCommandAtIndex({ action: this.actions, 
-                    data: "forward", 
-                    object: this, 
-                    start: this.startForward, 
-                    complete: function(){}, 
-                    uncomplete: this.uncompleteForward, 
-                    snapshotFunction:this.takeSnapshot}, 2);
+  TIME.addCommandAtIndex(this.forwardCommand(), 2, true);
 }
   
 Robot.prototype.moveBack = function(){

@@ -138,9 +138,14 @@ function Time(){
     printState();
   }
   
-  function addCommandAtIndex(commandData, index){
+  function addCommandAtIndex(commandData, index, insert){
     if(!verifyCommand(commandData)){
       return;
+    }
+    
+    if(insert != undefined && insert){
+      commandList.splice(index, 0, []);
+      index += 1;
     }
     
     if(commandList[index] == undefined)
