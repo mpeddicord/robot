@@ -30,7 +30,7 @@ testLevels['default'] = function(world)
     }));
   }
   
-  world.createWallRect(-13, -13, 24, 24);
+  world.createWallRect(-11, -11, 21, 21);
 }
 
 testLevels['empty'] = function(world) {}

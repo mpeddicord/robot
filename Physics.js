@@ -31,9 +31,9 @@ function getObjArray(x, y, z){
 function moveObjInGrid(obj, oldPos, newPos){
   var newArray = getObjArray(newPos.x, newPos.y, newPos.z);
   
-  var spaceOccupied = (newArray.length) > 1 || (newArray.length == 1 && newArray[0] != obj);
-  if (spaceOccupied)
-    return FAILURE;
+  //var spaceOccupied = (newArray.length) > 1 || (newArray.length == 1 && newArray[0] != obj);
+  //if (spaceOccupied)
+  //  return FAILURE;
     
   markersDirty = true;
   

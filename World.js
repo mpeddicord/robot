@@ -43,8 +43,6 @@ function World(scene) {
       if(keycode == 40) //Down
       {
       	selectedRobot.moveForwardHistory();
-        //selectedRobot.moveBack();
-        //block.push(new THREE.Vector3(1,0,0));
       }
       if(keycode == 219) //[
       {

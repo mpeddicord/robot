@@ -65,7 +65,7 @@ DynamicObjectBase.prototype.setPosition = function(pos) {
     result = moveObjInGrid(this, this.gridPos, newPos);
   }
 
-  if (result == SUCCESS) {
+  if (true || result == SUCCESS) {
     this.body.position.x = pos.x;
     this.body.position.y = pos.y;
     this.body.position.z = pos.z;

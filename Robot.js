@@ -30,13 +30,17 @@ Robot.prototype.forwardCommand = function(){
       basePosition.copy(commandObj.snapshotData.position);
       v1.applyEuler( this.body.rotation );
       basePosition.add( v1.multiplyScalar( time * stepSize ) );
-      if (this.setPosition(basePosition) == FAILURE) {
+      
+      var result = this.setPosition(basePosition);
+      /*
+      if (result == FAILURE) {
         if (false && commandObj["pushCmds"] != undefined) {
           for(var i=0; i < commandObj["pushCmds"].length; ++i) {
             commandObj.pushCmds[i].stopped = true;
           }
         }
       }
+      */
     },
       
     data: "", 

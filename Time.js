@@ -29,18 +29,16 @@ function Time(){
     if(!validIndex(index)) 
       return;
       
-    var toRemove = [];
+    var keepers = [];
     for(var i in commandList[index]){
       var command = commandList[index][i];
       command.uncomplete.call(command.object, command);
-      if(command.passive != undefined && command.passive){
-      	toRemove.push(i);
+      if(command.passive == undefined || !command.passive){
+      	keepers.push(command);
       }
     }
     
-    for(var i in toRemove){
-      commandList[index].splice(toRemove[i], 1);
-    }
+    commandList[index] = keepers;
   }
   
   function onApplyForces(index) {
