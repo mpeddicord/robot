@@ -16,16 +16,19 @@ function Time(){
   }
   
   function onComplete(index){
-    if(!validIndex(index)) return;
+    if(!validIndex(index)) 
+      return;
+      
     for(var i in commandList[index]){
       var command = commandList[index][i];
       command.complete.call(command.object, command);
     }
-    
   }
   
   function onUncomplete(index){
-    if(!validIndex(index)) return;
+    if(!validIndex(index)) 
+      return;
+      
     var toRemove = [];
     for(var i in commandList[index]){
       var command = commandList[index][i];
@@ -34,9 +37,17 @@ function Time(){
       	toRemove.push(i);
       }
     }
+    
     for(var i in toRemove){
       commandList[index].splice(toRemove[i], 1);
-	}
+    }
+  }
+  
+  function onApplyForces(index) {
+    if(!validIndex(index)) 
+      return;
+
+      
   }
 
   function onStart(index){
@@ -107,7 +118,9 @@ function Time(){
         snapToGrid(startIndex);        
         if(forward){
           onComplete(startIndex);
-          PHYSICS.update(startIndex + 1);
+          PHYSICS.updateBegin();
+          onApplyForces(startIndex + 1);
+          PHYSICS.updateEnd();
           onStart(startIndex + 1);
         }else{
           onUncomplete(startIndex);

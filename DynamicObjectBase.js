@@ -30,6 +30,8 @@ DynamicObjectBase = function(data) {
   this.body = undefined;
   this.data = data;
   this.gridPos = undefined;
+  this.vector = new THREE.Vector3();
+  this.onSurface = false;
   
   allObjects.push(this);
 }
@@ -104,9 +106,13 @@ DynamicObjectBase.prototype.pushUncomplete = function(commandObj){
 }
 
 DynamicObjectBase.prototype.pushStart = function(commandObj){
-  var newPos = new THREE.Vector3();
+  if (commandObj.data.x == 0 && commandObj.data.y == -1 && commandObj.data.z == 0 && this.onSurface)
+    commandObj.stopped = true;
+
   var direction = new THREE.Vector3();
   direction.copy(commandObj.data);
+    
+  var newPos = new THREE.Vector3();
   direction.multiplyScalar(stepSize);
   newPos.copy(this.body.position);
   newPos.add(direction);
@@ -130,6 +136,41 @@ DynamicObjectBase.prototype.pushCommand = function(vector) {
 
 DynamicObjectBase.prototype.push = function(vector){
   return TIME.addCommand(this.pushCommand(vector));
+}
+
+DynamicObjectBase.prototype.clearVector = function(){
+  this.vector.set(0,0,0);
+}
+
+DynamicObjectBase.prototype.applyForce = function(vector){
+  this.vector.add(vector);
+}
+
+DynamicObjectBase.prototype.convertVectorToPush = function(vector){
+  var v = this.vector;
+  if (v.length() > 0.5) {
+    v.normalize();
+
+    var xp = Math.abs(v.x);
+    var yp = Math.abs(v.y);
+    var zp = Math.abs(v.z);
+    
+    if (xp > yp && xp > zp) {
+      v.set( (v.x>0)?1:-1, 0, 0 );
+    }
+    else if (yp > zp) {
+      v.set( 0, (v.y>0)?1:-1, 0 );
+    }
+    else {
+      v.set( 0, 0, (v.z>0)?1:-1 );
+    }
+    
+    //Things shouldn't get a fall if they're on something
+    if (!(v.y == -1 && this.onSurface))
+      this.push(v.clone());
+  }
+        
+  this.vector.set(0,0,0);
 }
 
 DynamicObjectBase.prototype.takeSnapshot = function(){

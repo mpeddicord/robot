@@ -30,7 +30,7 @@ testLevels['default'] = function(world)
     }));
   }
   
-  world.createWallRect(-11, -11, 21, 21);
+  world.createWallRect(-13, -13, 24, 24);
 }
 
 testLevels['empty'] = function(world) {}
@@ -131,6 +131,8 @@ testLevels['stack'] = function(world)
 
 testLevels['dance'] = function(world)
 {
+  world.createWallRect(-11, -11, 21, 21);
+  
   var numRobots = 4;
   for(var i = 0; i < numRobots; i++)
   {

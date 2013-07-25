@@ -101,7 +101,7 @@ function main(){
     scene.add( directionalLight );
 
     // Renderer
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({antialias:true});
     //renderer = new THREE.CanvasRenderer();
 
     calculateContainerSize();

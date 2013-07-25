@@ -5,10 +5,15 @@ function Robot(data) {
   
   this.body = THREE.SceneUtils.createMultiMaterialObject( new THREE.OctahedronGeometry(25), this.personalColor );  
   this.body.children[0].userData.gameObject = this;
-  
-  var front = new THREE.Mesh(new THREE.OctahedronGeometry(10), this.personalColor[0]);
-  front.position.x = 18;
-  this.body.add(front);
+
+  var z = [-10,10];
+  for (var i=0; i<2; ++i) {
+    var front = new THREE.Mesh(new THREE.OctahedronGeometry(10), this.personalColor[0]);
+    front.position.x = 10;
+    front.position.y = 10;
+    front.position.z = z[i];
+    this.body.add(front);
+  }
   
   this.setPosition(data.pos);
 };

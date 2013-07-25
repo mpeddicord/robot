@@ -10,7 +10,7 @@ for (var x = 0; x < gridSize; x++) {
   for (var y = 0; y < gridSize; y++) {
     collisionGrid[x][y] = new Array(gridSize);
     for (var z = 0; z < gridSize; z++) {      
-      collisionGrid[x][y][z] = new Array();        
+      collisionGrid[x][y][z] = [];
     }
   }
 }
@@ -52,7 +52,8 @@ function addObjToGrid(obj, pos){
   getObjArray(pos.x, pos.y, pos.z).push(obj);
 }
 
-function accumulateMass(obj, direction, objList) {
+function accumulateMass(obj, direction, objList) 
+{
   var v = new THREE.Vector3();
   v.addVectors(obj.body.position, direction);
   
@@ -66,26 +67,45 @@ function accumulateMass(obj, direction, objList) {
   return obj.mass + accumulateMass(oa[0], direction, objList);
 }
 
-function Physics() {
-  
-  function update(timeIndex) {
+function Physics() 
+{  
+  function updateBegin() 
+  {
     for (var i=0; i<allObjects.length; ++i) {
       var o = allObjects[i];
       var p = o.gridPos;
+
+      var below = {x:p.x, y:p.y-stepSize, z:p.z};
+      
+      var objsBelow = [];
+      var somethingBeneath = true;
       if (p.y > 0) {
-        var below = {x:p.x, y:p.y-stepSize, z:p.z};
         var objsBelow = getObjArray(below.x, below.y, below.z);
-        var somethingBeneath = (objsBelow.length) > 0;
-        if (!somethingBeneath) {
-          //fall
-          TIME.addCommandAtIndex(o.pushCommand(new THREE.Vector3( 0, -1, 0 )), timeIndex);
+        somethingBeneath = (objsBelow.length) > 0;
+        
+        if (somethingBeneath) {
+          for(var j=0;j<objsBelow.length;++j) {
+            objsBelow[j].applyForce({x:0,y:-1,z:0});
+          }
         }
       }
+        
+      o.onSurface = somethingBeneath;
+      o.applyForce({x:0,y:-1,z:0});
+    }
+  }
+  
+  function updateEnd()
+  {
+    for (var i=0; i<allObjects.length; ++i) {    
+      var o = allObjects[i];
+      o.convertVectorToPush();
     }
   }
 
   return {
-    update:update
+    updateBegin:updateBegin,
+    updateEnd:updateEnd
   };
 }
 
