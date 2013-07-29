@@ -5,10 +5,16 @@ function Time(){
   }
   var needle = 0;
   
+  var greatestNeedle = 0;
+  
   function getNeedle(){ return needle; }
   
   function getIndex(){
     return Math.floor(needle / stepLength);
+  }
+  
+  function biggestIndex(){
+    return Math.floor(greatestNeedle / stepLength);
   }
   
   function validIndex(index){
@@ -134,9 +140,13 @@ function Time(){
       var percent = needle / stepLength - Math.floor(needle / stepLength);
       onAction(startIndex, percent);
     }
+    if(needle > greatestNeedle)
+      greatestNeedle = needle;
     
     printState();
   }
+  
+  var objectsInTime = {};
   
   function addCommandAtIndex(commandData, index, insert){
     if(!verifyCommand(commandData)){
@@ -162,8 +172,66 @@ function Time(){
     if(previousAction) 
       update(time);
       
+    commandData.object   
+    
+    updateAllLines();
+      
     return commandData;
   }
+  
+  
+  var lineColor = [
+    new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 3, linejoin: "round" } ),
+    new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 1, linejoin: "round" } )
+  ];
+  
+  
+  function goToTime(newNeedle){
+    update(newNeedle - needle);
+  }
+  
+  function updateAllLines(){      
+    var bigIndex = biggestIndex();
+    var startNeedle = needle;
+    
+    for(var key in objectsInTime) {
+      scene.remove(objectsInTime[key].line);
+      delete objectsInTime[key];
+    }
+    
+    update(-needle);
+    for(var index = 0; index <= bigIndex; index++){
+      update(stepLength);
+      if(!validIndex(index)) continue;
+      for(var i in commandList[index]){
+        var command = commandList[index][i];
+        var id = command.object.uid();
+        
+        if(objectsInTime[id] == undefined){
+          objectsInTime[id] = { verts:[] };
+        }
+        
+        var posCopy = new THREE.Vector3();
+        posCopy.copy(command.object.getPosition.call(command.object));
+        posCopy.setY(posCopy.y - 20);
+        objectsInTime[id].verts.push(posCopy);
+      }
+    }
+    
+    update(-((bigIndex + 1) * stepLength) + startNeedle);
+    
+    for(var key in objectsInTime) {
+      var linemat = new THREE.LineBasicMaterial( { color: 0x666666 } );  
+      var newGeo = new THREE.Geometry();
+      newGeo.vertices = objectsInTime[key].verts;
+      newGeo.dynamic = true;
+      objectsInTime[key] = { obj: command.object, geo: newGeo, material: linemat, line: new THREE.Line(newGeo, linemat) };
+      
+      scene.add(objectsInTime[key].line);
+    }
+  }
+  
+  function 
   
   function addCommand(commandData){
     addCommandAtIndex(commandData, Math.ceil(needle / stepLength));

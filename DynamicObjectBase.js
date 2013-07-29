@@ -1,6 +1,13 @@
+var curUID = 1;
+function getUID(){
+  return curUID++;
+}
+
 DynamicObjectBase = function(data) {
   if (data == undefined)
     return;
+    
+  this.id = getUID();
     
   if (data.pos == undefined)
     data.pos = {x:0,y:0,z:0};
@@ -74,6 +81,10 @@ DynamicObjectBase.prototype.setPosition = function(pos) {
   }
     
   return result;
+}
+
+DynamicObjectBase.prototype.getPosition = function() {
+  return this.body.position;
 }
 
 DynamicObjectBase.prototype.pushAction = function(time, commandObj){
@@ -189,4 +200,8 @@ DynamicObjectBase.prototype.select = function() {
 
 DynamicObjectBase.prototype.deselect = function() {
   this.body.children[1].material.color = new THREE.Color(0x000000);
+}
+
+DynamicObjectBase.prototype.uid = function() {
+  return this.id;
 }
