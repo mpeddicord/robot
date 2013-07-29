@@ -174,7 +174,7 @@ function Time(){
       
     commandData.object   
     
-    updateAllLines();
+    //updateAllLines();
       
     return commandData;
   }
@@ -230,8 +230,6 @@ function Time(){
       scene.add(objectsInTime[key].line);
     }
   }
-  
-  function 
   
   function addCommand(commandData){
     addCommandAtIndex(commandData, Math.ceil(needle / stepLength));
