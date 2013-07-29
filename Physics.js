@@ -3,6 +3,7 @@ var stepSize = 50;
 var gridSize = 22;
 var EPSILON = 0.00000001;
 var offset = (stepSize * gridSize) / 2;
+var globalFloorArray = [];
 
 var collisionGrid = new Array(gridSize);
 for (var x = 0; x < gridSize; x++) {
@@ -95,7 +96,10 @@ function Physics()
       
       var objsBelow = [];
       var somethingBeneath = true;
-      if (p.y > 0) {
+      
+      var onAFloor = checkOnFloor(o);
+      
+      if (!onAFloor) {
         var objsBelow = getObjArray(below.x, below.y, below.z);
         somethingBeneath = (objsBelow.length) > 0;
         
@@ -109,6 +113,19 @@ function Physics()
       o.onSurface = somethingBeneath;
       o.applyForce({x:0,y:-1,z:0});
     }
+  }
+  
+  function checkOnFloor(object){
+    for(var index in globalFloorArray){
+      var modifiedPoint = new THREE.Vector3();
+      modifiedPoint.copy(object.getPosition());
+      modifiedPoint.setX(modifiedPoint.x + (stepSize / 2));
+      modifiedPoint.setY(modifiedPoint.y - (stepSize / 2));
+      modifiedPoint.setZ(modifiedPoint.z + (stepSize / 2));
+      if(globalFloorArray[index].getBox().containsPoint(modifiedPoint))
+        return true;
+    }
+    return false;
   }
   
   function updateEnd()

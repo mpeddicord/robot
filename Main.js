@@ -74,7 +74,7 @@ function main(){
 
     var line = new THREE.Line( gridgeometry, gridmaterial );
     line.type = THREE.LinePieces;
-    scene.add( line );
+    //scene.add( line );
 
     // Cubes
     gridWorld = new World(scene);
@@ -124,8 +124,7 @@ function main(){
     var z= $( "#zoom" )[0];
     window.onZoom(z);
 
-    window.addEventListener( 'resize', onWindowResize, false );
-    
+    window.addEventListener( 'resize', onWindowResize, false );    
     
     var level = $.urlParam('level');
     if (level != undefined) {

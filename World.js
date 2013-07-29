@@ -100,6 +100,11 @@ function World(scene) {
     blockList.push(newBlock);
     return newBlock;
   }
+  
+  function addFloorToWorld(data){
+    var floorTest = new Floor(data);
+    floorTest.addToScene();
+  }
     
   function addRobotToWorld(r) {
     robots.push(r);
@@ -178,6 +183,7 @@ function World(scene) {
   
   return {
     addBlockToWorld : addBlockToWorld,
+    addFloorToWorld : addFloorToWorld,
     addRobotToWorld : addRobotToWorld,
     createWallRect: createWallRect,
     selectRobot : selectRobot,
