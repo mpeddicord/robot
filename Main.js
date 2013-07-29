@@ -48,11 +48,6 @@ function main(){
       1, 
       5000 
     );
-      
-    camera.position.x = 1000;
-    camera.position.y = 1000;
-    camera.position.z = 1000;
-    camera.lookAt(new THREE.Vector3(0,0,0));
     
     projector = new THREE.Projector(); 
     
@@ -204,9 +199,10 @@ function main(){
 
     var middleOfGrid = (gridWorld.worldSize * gridWorld.worldStep) / 2;
 
-    //camera.position.x = Math.cos( timer ) * 200 + middleOfGrid;
-    //camera.position.z = Math.sin( timer ) * 200 + middleOfGrid;
-    //camera.lookAt( new THREE.Vector3(middleOfGrid, 100, middleOfGrid) );
+    camera.position.x = 810;
+    camera.position.y = 1000;
+    camera.position.z = 550;
+    camera.lookAt( new THREE.Vector3(middleOfGrid, 100, middleOfGrid) );
 
     renderer.render( scene, camera );
   }

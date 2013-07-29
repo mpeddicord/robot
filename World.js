@@ -87,6 +87,18 @@ function World(scene) {
     }
   }
   
+  function createFloorRect(x, z, width, length, level, color, hollow){
+    if(!hollow){
+      addFloorToWorld({x: x, z: z, width: width, length: length, level: level, color: color});
+    }else{
+      addFloorToWorld({x: x, z: z, width: width, length: 1, level: level, color: color});
+      addFloorToWorld({x: x, z: z+length-1, width: width, length: 1, level: level, color: color});
+      
+      addFloorToWorld({x: x, z: z+1, width: 1, length: length-2, level: level, color: color});
+      addFloorToWorld({x: x+width-1, z: z+1, width: 1, length: length-2, level: level, color: color});
+    }
+  }
+  
   function addBlockToWorld(x, y, z, mass, color)
   {    
     var newBlock = new Block({
@@ -186,6 +198,7 @@ function World(scene) {
     addFloorToWorld : addFloorToWorld,
     addRobotToWorld : addRobotToWorld,
     createWallRect: createWallRect,
+    createFloorRect: createFloorRect,
     selectRobot : selectRobot,
     update : update,
     worldSize : size,

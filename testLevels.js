@@ -9,7 +9,7 @@ var robotMaterials = [
 
 testLevels['default'] = function(world)
 {
-  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0, opacity: 0});
+  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0});
   
   world.addBlockToWorld(1,0,-1);
   world.addBlockToWorld(1,0,-2);
@@ -51,7 +51,7 @@ testLevels['island'] = function(world)
     }));
 }
 
-testLevels['puzzle'] = function(world) 
+testLevels['minipuzzle'] = function(world) 
 {
   for(var i = 8; i >= 0; i--){
       //world.addFloorToWorld({x: -i, z: -1, width: 2, length: 2, level: i, color: 0xFF0000});
@@ -75,13 +75,29 @@ testLevels['puzzle'] = function(world)
       blockGeo:robotGeo, 
       blockMaterials:robotMaterials
     }));
+}
+
+testLevels['bullseye'] = function(world) 
+{
+  world.createFloorRect(-7, -7, 14, 14, 0, 0xff0000, true);
+  world.createFloorRect(-5, -5, 10, 10, 0, 0xff0000, true);
+  world.createFloorRect(-3, -3, 6, 6, 0, 0xff0000, true);
+  world.createFloorRect(-1, -1, 2, 2, 0, 0xff0000, true);
   
-  
+  world.addRobotToWorld(new Robot({
+      pos : {
+        x: 0, 
+        y: 0, 
+        z: 2
+      },
+      blockGeo:robotGeo, 
+      blockMaterials:robotMaterials
+    }));
 }
 
 testLevels['collide'] = function(world)
 {
-  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0, opacity: 0});
+  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0});
   var robot = [];
   
   robot.push(
@@ -159,7 +175,7 @@ testLevels['collide'] = function(world)
 
 testLevels['stack'] = function(world)
 {
-  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0, opacity: 0});
+  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0});
   
   world.addRobotToWorld(new Robot({
       pos : {
@@ -178,7 +194,7 @@ testLevels['stack'] = function(world)
 
 testLevels['stacks'] = function(world)
 {
-  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0, opacity: 0});
+  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0});
   
   world.addRobotToWorld(new Robot({
       pos : {
@@ -208,7 +224,7 @@ testLevels['stacks'] = function(world)
 
 testLevels['dance'] = function(world)
 {
-  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0, opacity: 0});
+  world.addFloorToWorld({x: -11, z: -11, width: 22, length: 22, level: 0});
   
   var robot = [];
   world.createWallRect(-11, -11, 21, 21);
